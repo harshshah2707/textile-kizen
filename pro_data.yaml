@@ -1,0 +1,10 @@
+names:
+- hole
+- stain
+- lines
+- Needle mark
+- Pinched fabric
+nc: 5
+path: C:\Users\Harsh\Desktop\textile defect detection\datasets\pro_yolo
+train: images/train
+val: images/val

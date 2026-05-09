@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextileGuard AI | Defect Detection System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --bg: #0a0b10;
+            --card-bg: #161b22;
+            --text: #e6edf3;
+            --accent: #ff3e00;
+            --success: #00ff88;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(79, 172, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(79, 172, 254, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(79, 172, 254, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        #fileInput { display: none; }
+
+        .btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .result-container {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #resultImage {
+            max-width: 100%;
+            border-radius: 16px;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .placeholder-text {
+            color: #484f58;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .status-pass { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .status-fail { background: rgba(255, 62, 0, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--card-bg);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: none;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; margin-top: 5px; }
+
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TextileGuard AI</h1>
+            <p class="subtitle">Next-generation defect detection using YOLOv8 neural networks</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Analysis Input</h3>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <span class="upload-icon">✦</span>
+                    <p id="fileNameDisplay">Drag and drop or click to upload fabric image</p>
+                    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this)">
+                </div>
+                <button class="btn" id="analyzeBtn" disabled onclick="analyzeImage()">Run AI Diagnostics</button>
+                
+                <div id="stats" class="stats">
+                    <div class="stat-item">
+                        <div id="defectCount" class="stat-value">0</div>
+                        <div class="stat-label">Defects Found</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="latency" class="stat-value">--</div>
+                        <div class="stat-label">Inference Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card result-container">
+                <div id="loader" class="loader"></div>
+                <div id="placeholder" class="placeholder-text">
+                    Results will appear here after diagnostic run
+                </div>
+                <img id="resultImage" alt="Analysis Result">
+                <div id="statusBadge" class="status-badge"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleFile(input) {
+            const fileName = input.files[0].name;
+            document.getElementById('fileNameDisplay').innerText = fileName;
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+
+        async function analyzeImage() {
+            const fileInput = document.getElementById('fileInput');
+            const btn = document.getElementById('analyzeBtn');
+            const loader = document.getElementById('loader');
+            const placeholder = document.getElementById('placeholder');
+            const resultImg = document.getElementById('resultImage');
+            const statusBadge = document.getElementById('statusBadge');
+            const stats = document.getElementById('stats');
+
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            // UI State
+            btn.disabled = true;
+            loader.style.display = 'block';
+            placeholder.style.display = 'none';
+            resultImg.style.display = 'none';
+            statusBadge.style.display = 'none';
+            stats.style.display = 'none';
+
+            const startTime = performance.now();
+
+            try {
+                const response = await fetch('/api/detect', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                const endTime = performance.now();
+                const latency = Math.round(endTime - startTime);
+
+                // Update UI
+                resultImg.src = `/uploads/${data.result_image}`;
+                resultImg.style.display = 'block';
+                
+                statusBadge.innerText = data.status;
+                statusBadge.className = `status-badge ${data.status === 'PASS' ? 'status-pass' : 'status-fail'}`;
+                statusBadge.style.display = 'inline-block';
+
+                document.getElementById('defectCount').innerText = data.defect_count;
+                document.getElementById('latency').innerText = `${latency}ms`;
+                stats.style.display = 'grid';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Analysis failed. Please check server logs.');
+            } finally {
+                loader.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

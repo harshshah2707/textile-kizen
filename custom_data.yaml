@@ -1,0 +1,6 @@
+names:
+- defect
+nc: 1
+path: C:\Users\Harsh\Desktop\textile defect detection\datasets\custom_real
+train: train/images
+val: val/images

@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+env/
+.env
+
+# Datasets and Large Files
+datasets/
+runs/
+logs/
+saved_frames/
+*.pt
+*.h5
+*.zip
+*.tar.gz
+
+# IDEs
+.vscode/
+.idea/
