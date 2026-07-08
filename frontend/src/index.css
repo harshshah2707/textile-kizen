@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #05060A;       /* Pure industrial black base background */
+  --color-charcoal: #12141D;   /* Dark charcoal card backgrounds */
+  --color-cyan: #2563EB;       /* Vibrant royal blue primary accent */
+  --color-light-cyan: #3B82F6; /* Bright blue secondary accent */
+  --color-orange: #F97316;     /* High-vis orange for warnings/points */
+  --color-red: #EF4444;        /* Intense red for defects/fails */
+  --color-green: #10B981;      /* Clean green for PASS status */
+  --color-gray: #94A3B8;       /* Silver-gray body text for high readability */
+  --color-white: #FFFFFF;      /* Crisp white primary text */
+  
+  --font-sans: "Inter", "Roboto", -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+@layer base {
+  body {
+    background-color: #05060A;
+    color: #FFFFFF;
+    font-family: var(--font-sans);
+    letter-spacing: 0.015em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom Scrollbar for Dark Theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(9, 13, 22, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* Glowing Pulsing Animations (Softened for Light Mode) */
+@keyframes pulse-glow-red {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes pulse-glow-orange {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(234, 88, 12, 0.10);
+    border-color: rgba(234, 88, 12, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(234, 88, 12, 0.35);
+    border-color: rgba(234, 88, 12, 0.45);
+  }
+}
+
+@keyframes pulse-live {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+}
+
+.pulse-glow-error {
+  animation: pulse-glow-red 1.2s infinite ease-in-out;
+}
+
+.pulse-glow-warning {
+  animation: pulse-glow-orange 1.5s infinite ease-in-out;
+}
+
+.live-blink {
+  animation: pulse-live 1.6s infinite ease-in-out;
+}
+
+/* Glassmorphism Panel styles optimized for Dark Theme */
+.glass-panel {
+  background: #11141D;
+  border: 1px solid #1E2533;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+}
+
+.glass-panel:hover {
+  border-color: #2563EB;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* Premium industrial transitions */
+button.cursor-pointer, a.cursor-pointer {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button.cursor-pointer:hover, a.cursor-pointer:hover {
+  transform: translateY(-1px);
+}
+
+button.cursor-pointer:active, a.cursor-pointer:active {
+  transform: translateY(0);
+}
+
+/* Red flashing full window border alert */
+@keyframes window-flash-red {
+  0%, 100% { box-shadow: inset 0 0 0 0px rgba(239, 68, 68, 0); }
+  50% { box-shadow: inset 0 0 0 4px rgba(239, 68, 68, 0.45); }
+}
+
+.alert-flash {
+  animation: window-flash-red 0.8s infinite;
+}
+
+/* -------------------------------------------------------------
+   Touch Screen Optimization Overrides (1920*1080 resolution)
+   ------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  /* Increase base font size on larger screens for industrial panels */
+  html {
+    font-size: 19px;
+  }
+}
+
+/* Override utility sizes to scale up labels on touchscreen */
+.text-\[8px\] {
+  font-size: 11px !important;
+}
+.text-\[9px\] {
+  font-size: 12px !important;
+}
+.text-\[10px\] {
+  font-size: 13px !important;
+}
+.text-xs {
+  font-size: 14px !important;
+}
+.text-sm {
+  font-size: 15px !important;
+}
+.text-base {
+  font-size: 17px !important;
+}
+.text-lg {
+  font-size: 19px !important;
+}
+
+/* Chunky touch-friendly sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px !important;
+  background: rgba(15, 23, 42, 0.1) !important;
+  border-radius: 9999px !important;
+  outline: none !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9999px !important;
+  background: #2563EB !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.5) !important;
+  border: 3px solid #FFFFFF !important;
+  margin-top: -8px !important;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9999px !important;
+  background: #2563EB !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.5) !important;
+  border: 3px solid #FFFFFF !important;
+}
+
+/* Larger, easier to tap checkboxes */
+input[type="checkbox"] {
+  width: 24px !important;
+  height: 24px !important;
+  cursor: pointer !important;
+  accent-color: #2563EB !important;
+}
+
+/* Make selects, inputs, and text fields finger-friendly */
+select, input[type="text"], input[type="password"], input[type="email"], input[type="date"] {
+  min-height: 52px !important;
+  padding: 12px 18px !important;
+  font-size: 15px !important;
+  border-radius: 14px !important;
+}
+
+/* Minimum height check for general touchable buttons */
+button.cursor-pointer {
+  min-height: 48px;
+}
+
+/* Table padding enhancements for touch scrolling */
+th, td {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+@keyframes loading-bar {
+  0% { left: -100%; width: 50%; }
+  50% { left: 0%; width: 70%; }
+  100% { left: 100%; width: 50%; }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 2s infinite ease-in-out;
+  position: absolute;
+}
+

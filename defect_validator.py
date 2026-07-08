@@ -6,7 +6,7 @@ class DefectValidator:
     def __init__(self):
         self.min_contrast = 5 # Extremely sensitive contrast check
         self.min_size = 5     # pixels
-        self.max_size = 300   # pixels
+        self.max_size = 640   # pixels
 
     def validate_defect(self, box, frame, roi_mask):
         """

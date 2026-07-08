@@ -9,6 +9,13 @@ LIVE_CONFIG = {
     'confidence_min': 0.1,
     'confidence_max': 0.95,
     
+    # MindVision Line-Scan Camera Settings
+    'use_mindvision': True,               # Enable line-scan camera support if present
+    'mindvision_slice_height': 200,       # Height of each camera acquisition block
+    'mindvision_canvas_multiplier': 10,   # Canvas scrolling height buffer (10x slice height)
+    'mindvision_enhance': True,           # Enable CLAHE + Sharpening filter on line-scan feed
+    
+    
     'detection': {
         'model_path': 'runs/textile_detection/defect_model_pro_v1/weights/best.pt',
         'classifier_path': 'runs/textile_classification/fabric_classifier_v1/weights/best.pt',

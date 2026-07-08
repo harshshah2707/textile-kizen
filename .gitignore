@@ -21,3 +21,22 @@ saved_frames/
 # IDEs
 .vscode/
 .idea/
+
+# SQLite databases
+database/*.db
+
+# Static uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Model outputs / runs
+outputs/
+
+# Scratch large directories
+scratch/lusitano_raw/
+scratch/predictions/
+scratch/samples/
+scratch/thread_test/
+
+
+

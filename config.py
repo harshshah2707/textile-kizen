@@ -12,11 +12,11 @@ from pathlib import Path
 # Project Paths
 # ============================================================
 BASE_DIR = Path(__file__).parent.resolve()
-DATASET_DIR = BASE_DIR / "datasets" / "synthetic"
+DATASET_DIR = BASE_DIR / "datasets" / "multiclass_yolo"
 IMAGES_DIR = DATASET_DIR / "images"
 LABELS_DIR = DATASET_DIR / "labels"
 RUNS_DIR = BASE_DIR / "runs" / "textile_detection"
-MODEL_DIR = RUNS_DIR / "defect_model_v1"
+MODEL_DIR = RUNS_DIR / "defect_model_pro_v1"
 WEIGHTS_DIR = MODEL_DIR / "weights"
 OUTPUT_DIR = BASE_DIR / "outputs"
 TEMPLATES_DIR = BASE_DIR / "templates"
@@ -32,11 +32,14 @@ for d in [IMAGES_DIR, LABELS_DIR, RUNS_DIR, OUTPUT_DIR,
 # Defect Classes
 # ============================================================
 DEFECT_CLASSES = {
-    0: "hole",
-    1: "burn",
-    2: "split_end",
-    3: "stain",
-    4: "wrinkle",
+    0: "Broken stitch",
+    1: "hole",
+    2: "horizontal",
+    3: "lines",
+    4: "Needle mark",
+    5: "Pinched fabric",
+    6: "stain",
+    7: "Vertical",
 }
 NUM_CLASSES = len(DEFECT_CLASSES)
 CLASS_NAMES = list(DEFECT_CLASSES.values())
@@ -142,7 +145,7 @@ VIS_CONFIG = {
 # ============================================================
 FLASK_CONFIG = {
     "host": "0.0.0.0",
-    "port": 5000,
+    "port": 5001,
     "debug": True,
     "max_content_length": 16 * 1024 * 1024,  # 16MB max upload
     "allowed_extensions": {"png", "jpg", "jpeg", "bmp", "tiff"},

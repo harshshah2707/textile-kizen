@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Defect Detection Dataset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding-top: 150px;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        nav {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            position: fixed;
+            top: 100px;
+            left: 0;
+            background-color: #333;
+            z-index: 1000;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            color: #ccc;
+        }
+        .content {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .content h2 {
+            margin-top: 0;
+        }
+        .content p {
+            font-size: 22px; /* Increased font size */
+            text-align: justify; /* Improved text alignment */
+            line-height: 1.6; /* Improved line spacing */
+        }
+        .footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+        .footer p {
+            margin: 0;
+        }
+        /* Styles for the logos section */
+        .logos-section {
+            position: fixed; /* Change position to fixed */
+            top: 180px; /* Adjust the top position as needed */
+            left: calc(50% + 600px); /* Adjust the left position to move it to the left */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #fff; /* Adjust background color as needed */
+            z-index: 1000;
+        }
+
+        .logos-section img {
+            max-width: 120px; /* Adjust the width as needed */
+            height: auto;
+            margin-bottom: 10px; /* Add spacing between logos */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Lusitano Fabric Defect Detection Dataset</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#dataset">Dataset/Downloads</a></li>
+            <li><a href="#experiments">Experiments</a></li>
+            <li><a href="#about">About</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="content">
+            <section id="home">
+                <h2>Home</h2>
+                <!-- Your content here -->
+                <p>Our efforts are aimed at addressing the intricate challenges posed by the extensive diversity in colors, textures, and defect characteristics encountered in fabric defect detection. To facilitate research and innovation in this field, we are pleased to introduce a groundbreaking dataset. This dataset comprises a comprehensive selection of fabrics and defects sourced from a reputable textile company based in Portugal.</p>
+
+            <section id="dataset" style="padding: 20px;">
+                <hr>
+
+                <h2 style="color: #333; font-size: 24px; text-align: center; margin-bottom: 20px;">Dataset/Downloads</h2>
+                <p>The Lusitano dataset was collected over a 3-month period, spanning from January to March, from Paulo de Oliveira, S.A., a prominent textile company, based in Covilhã, Portugal, renowned for its innovative contributions to the textile industry. To collect the images for the dataset, we placed one camera in front of a fabric inspection machine, along with a strong and nearly uniform light source. 
+
+                    This dataset comprises 4096 × 1024 images, captured by an industrial-grade Teledyne Dalsa Linea camera. The camera’s high resolution and precision ensure the accurate depiction of textile samples, with the level of detail necessary for defect analysis. None of the defects depicted in this dataset are artificially generated; they stem from genuine occurrences observed during this collection period, and thus represent real-world challenges encountered in textile production processes. The dataset also showcases normal images. 
+                    
+                    We announce two folders, train and test in the same folder architecture, a MVTEC AD dataset. The training set contains 32k normal images, while the testing set contains 1646 defect images and 1038 normal images.</p>
+                    <figure style="text-align: center;">
+                        <img src="logos/setup.png" alt="setup" style="display: block; margin: 0 auto; max-height: 500px; max-width: 100%;">
+                        <figcaption style="font-style: italic; font-size: 14px; color: #666;">Real-time setup image from factory showing camera and fabric</figcaption>
+                    </figure>
+
+                    <figure style="text-align: center;">
+                        <img src="logos/normal_samples.jpg" alt="setup" style="display: block; margin: 0 auto; max-height: 500px; max-width: 100%;">
+                        <figcaption style="font-style: italic; font-size: 14px; color: #666;">Normal Fabric Images: A collection of high-resolution images showing various examples of
+                            normal fabric textures. These images serve as reference samples for fabric quality assessment.</figcaption>
+                    </figure>
+
+                    <figure style="text-align: center;">
+                        <img src="logos/anomaly_samples.jpg" alt="setup" style="display: block; margin: 0 auto; max-height: 500px; max-width: 100%;">
+                        <figcaption style="font-style: italic; font-size: 14px; color: #666;">Anomaly Fabric Images: A collection of fabric defect examples collected by our line camera.
+                            Defect areas are marked for reference.</figcaption>
+                    </figure>
+
+                    <figure style="text-align: center;">
+                        <img src="logos/image_analysis1.png" alt="setup" style="display: block; margin: 0 auto; max-height: 500px; max-width: 100%;">
+                        <figcaption style="font-style: italic; font-size: 14px; color: #666;">Comparison of defect and normal images along with their pixel-wise and cumulative
+                            histograms.</figcaption>
+                    </figure>
+                                
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px; background-color: #f9f9f9; border-radius: 5px; padding: 10px;">
+                        <a href="https://www.it.ubi.pt/DetReIDX_dataset/lusitano/nondefects.7z" target="_blank" style="color: #009688; font-size: 18px; text-decoration: none;">Train Dataset.V2(6GB) (Note this is second v2) having 6000 non defects images for traninig)</a>
+                    </li>
+                    <li style="margin-bottom: 10px; background-color: #f9f9f9; border-radius: 5px; padding: 10px;">
+                        <a href="https://www.it.ubi.pt/DetReIDX_dataset/lusitano/test.zip" target="_blank" style="color: #e91e63; font-size: 18px; text-decoration: none;">Test Dataset (12.5GB)</a>
+
+                    </li>
+                </ul>
+            </section>
+
+            
+            <section id="experiments" style="padding: 20px; background-color: #fff;">
+                <hr>
+                <h2 style="color: #333; font-size: 24px; text-align: center; margin-bottom: 20px;">Experiments</h2>
+                <img src="logos/table.png" alt="Evaluation Table" style="display: block; margin: 0 auto; max-width: 100%;">
+            
+                <div style="margin-top: 20px;">
+                    <p style="font-size: 16px;">Citations:</p>
+                    <ul style="list-style: none; padding: 0; text-align: right;">
+                        <li style="margin-bottom: 10px; font-size: 16px; padding-right: 20px;">
+                            91. Thomine, S.; Snoussi, H. Distillation-based fabric anomaly detection. Textile Research Journal 2024, 94, 552–565.
+                        </li>
+                        <li style="margin-bottom: 10px; font-size: 16px; padding-right: 20px;">
+                            92. Deng, H.; Li, X. Anomaly detection via reverse distillation from one-class embedding. In Proceedings of the Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 9737–9746.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            
+            
+            <hr>
+            <section id="about" style="padding: 20px 0 10px 0; background-color: #fff;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2 style="color: #333; font-size: 32px; text-align: center; margin-bottom: 30px;">About</h2>
+                            <div>
+                                <p style="font-size: 22px; margin-bottom: 10px;">Contact:</p>
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style='font-size: 22px;'>Rui Carrilho, Kailash A. Hambarde, and Hugo Proença,</li>
+                                    <li style='font-size: 22px;'> University of Beira Interior, IT: Instituto de Telecomunicações, Covilhã, Portugal; <a href="mailto:rui.carrilho@ubi.pt"></a></li>                                    
+                                </ul>
+                                <p style="font-size: 22px; margin-top: 20px;">* Correspondence: <a href="mailto:kailas.srt@gmail.com">rui.carrilho@ubi.pt, kailas.srt@gmail.com, </a></p>
+                            </div>
+
+                            <blockquote style="margin: 20px 0; padding: 10px; border-left: 3px solid #333;">
+                                <p>Citation: 'Carrilho, Rui, Kailash A. Hambarde, and Hugo Proença. 2024. "A Novel Dataset for Fabric Defect Detection: Bridging Gaps in Anomaly Detection" Applied Sciences 14, no. 12: 5298. https://doi.org/10.3390/app14125298 '</p>
+                                <cite style="font-style: italic; font-size: 14px; color: #666;">Name, Journal/Conference Name, Year</cite>
+                            </blockquote>
+
+                            
+                            <div style="margin-top: 30px;">
+                                <p style="font-size: 22px; margin-bottom: 10px;">Funding:</p>
+                                <p style="font-size: 22px;color: blue;">This work is funded by EU (NextGenerationEU program) and by PRR: Plano de Recuperação e Resiliência, in the scope of the "Projeto Lusitano - Agenda Mobilizadora para a Inovação Empresarial da Indústria Têxtil e do Vestuário de Portugal” (2022-C05i0101-02, SGO 2030). Also, it is co-funded by FCT/MCTES through national funds and by EU funds under the project UIDB/50008/2020.</p>
+                            </div>
+                            <div style="margin-top: 30px;">
+                                <p style="font-size: 22px; margin-bottom: 10px;">Acknowledgments:</p>
+                                <p style="font-size: 22px;color: blue;">This work was funded by FCT/MEC through national funds and co-funded by FEDER - PT2020 partnership agreement under the projects UIDB/50008/2020, POCI-01-0247-FEDER-033395.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            
+            
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 Fabric Defect Detection Dataset</p>
+    </div>
+    <!-- Logos Section -->
+    <div class="logos-section">
+        <img src="logos/logo1.png" alt="Logo 1">
+        <img src="logos/logo2.png" alt="Logo 2">
+        <img src="logos/logo3.png" alt="Logo 3">
+        <img src="logos/logo4.png" alt="Logo 4">
+        <a href="https://clustrmaps.com/site/1bzn4" title="Visit tracker"><img src="//www.clustrmaps.com/map_v2.png?d=BjRUI8tDsC6Ig8-A-RBz9FIMrfBN0yGlm9-4oMKH55w&cl=ffffff"></a>
+    </div>
+</body>
+</html>
