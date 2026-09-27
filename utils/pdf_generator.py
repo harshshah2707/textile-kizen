@@ -97,8 +97,11 @@ def generate_roll_pdf(roll_data, output_path):
     story = []
     
     # --- PAGE HEADER ---
-    story.append(Paragraph("TEXTILE QUALITY CONTROL REPORT", title_style))
-    story.append(Paragraph("TextileGuard AI • Fabric Inspection Certificate", ParagraphStyle('SubTitle', fontName='Helvetica-Bold', fontSize=10, textColor=colors.HexColor('#2563EB'), spaceAfter=15)))
+    story.append(Paragraph("KIZEN ENGINEERING", title_style))
+    story.append(Paragraph(
+        "Fabric Quality Inspection Certificate  •  Innovation Is Our Tradition  •  <font color='#2563EB'><u>https://kizen.co.in</u></font>", 
+        ParagraphStyle('SubTitle', fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#475569'), spaceAfter=15)
+    ))
     
     # --- METADATA ROW ---
     # Fetch material-specific width (default 1800mm if not logged)
@@ -250,6 +253,12 @@ def generate_roll_pdf(roll_data, output_path):
         
         story.append(tbl)
         
+    story.append(Spacer(1, 20))
+    story.append(Paragraph(
+        "<b>Kizen Engineering</b> — Innovation Is Our Tradition  •  <font color='#2563EB'>https://kizen.co.in</font>  •  Industrial Textile Inspection Suite",
+        ParagraphStyle('FooterNotice', fontName='Helvetica', fontSize=8, textColor=colors.HexColor('#64748B'), alignment=1)
+    ))
+    
     # Build Document
     doc.build(story)
     print(f"[PDF] Quality report generated successfully at: {output_path}")

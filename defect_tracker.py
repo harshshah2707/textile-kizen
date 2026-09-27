@@ -106,3 +106,10 @@ class DefectTracker:
                     'class': self.classes[objectID]
                 })
         return active
+
+    def clear(self):
+        self.objects.clear()
+        self.disappeared.clear()
+        self.bboxes.clear()
+        self.confidences.clear()
+        self.classes.clear()

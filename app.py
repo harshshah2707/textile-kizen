@@ -45,6 +45,11 @@ def get_detector():
 def index():
     return render_template('index.html')
 
+@app.route('/plc')
+def plc_control():
+    """Industrial PLC-type machine control panel UI."""
+    return render_template('plc.html')
+
 @app.route('/api/quick_test_images')
 def quick_test_images():
     """Returns a list of validation images representing various fabric defect types."""

@@ -19,9 +19,6 @@ function ControlPanel({
   updateSetting, 
   applyPreset, 
   clearHistory, 
-  defectHistory, 
-  isSimulationActive, 
-  toggleSimulation,
   userRole,
   materials,
   selectedMaterial,
@@ -104,32 +101,30 @@ function ControlPanel({
         </div>
       )}
 
-      {/* Loom Simulation Control Card */}
+      {/* Kizen Inspection Engine Status Card */}
       <div className="glass-panel p-4 rounded-2xl border border-white/5 shadow-md flex flex-col gap-3">
         <h3 className="text-[10px] font-bold text-gray uppercase tracking-widest flex items-center gap-1.5 border-b border-white/5 pb-2">
           <Settings className="w-3.5 h-3.5 text-cyan" />
-          <span>Loom Simulation Feed</span>
+          <span>Kizen Vision Engine</span>
         </h3>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[9px] text-gray uppercase font-semibold">Simulation Status</span>
+            <span className="text-[9px] text-gray uppercase font-semibold">Hardware Link</span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full ${isSimulationActive ? 'bg-green-500 live-blink' : 'bg-gray-400'}`}></span>
-              <span className={`text-[10px] font-bold ${isSimulationActive ? 'text-green' : 'text-gray'}`}>
-                {isSimulationActive ? 'RUNNING' : 'STANDBY'}
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              <span className="text-[10px] font-bold text-green font-mono">
+                ONLINE • GENUINE
               </span>
             </div>
           </div>
-          <button
-            onClick={toggleSimulation}
-            className={`py-2 px-3 rounded-xl text-[10px] font-extrabold tracking-wider uppercase border transition-all cursor-pointer hover:scale-105 active:scale-95 ${
-              isSimulationActive 
-                ? 'bg-red/15 border-red text-red' 
-                : 'bg-cyan border-cyan text-white hover:bg-light-cyan shadow-sm shadow-cyan/20'
-            }`}
+          <a
+            href="https://kizen.co.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-1.5 px-3 rounded-xl text-[9px] font-extrabold tracking-wider uppercase border border-cyan/40 bg-cyan/10 text-cyan hover:bg-cyan/20 transition-all no-underline"
           >
-            {isSimulationActive ? 'Stop Feed' : 'Start Feed'}
-          </button>
+            kizen.co.in
+          </a>
         </div>
       </div>
 
@@ -355,20 +350,35 @@ function ControlPanel({
           >
             <div className="flex items-center gap-2">
               <Camera className="w-3.5 h-3.5 text-cyan" />
-              <span>Hardware Capture</span>
+              <span>Line-Scan Hardware Capture</span>
             </div>
             {openSection === 'camera' ? <ChevronUp className="w-4 h-4 text-gray" /> : <ChevronDown className="w-4 h-4 text-gray" />}
           </button>
 
           {openSection === 'camera' && (
             <div className="p-4 border-t border-white/5 flex flex-col gap-3 bg-navy/20">
+              
+              {/* Hardware Sensor Identification */}
+              <div className="flex flex-col gap-1 p-2.5 rounded-xl border border-cyan/20 bg-cyan/5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[8px] font-bold text-cyan uppercase font-sans tracking-wider">Line-Scan Interface</label>
+                  <span className="text-[9px] font-mono font-bold text-emerald">169.254.231.206</span>
+                </div>
+                <div className="text-xs font-semibold text-white">
+                  ChinaVision GELM44M-T2 (GigE Line-Scan)
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono">
+                  1000+ Hz Line Rate · 4096 px Sensor Width
+                </div>
+              </div>
+
               {['cam1'].map((camId) => {
                 const cam = settings.cameraControls[camId];
                 return (
                   <div key={camId} className="p-2.5 rounded-xl border border-white/5 bg-navy/35 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-white font-mono">
-                        MINDVISION LINE SCAN CAMERA
+                        SENSOR CONTROLS
                       </span>
                       
                       <button
@@ -388,7 +398,7 @@ function ControlPanel({
                         <div>
                           <div className="flex justify-between text-[8px] font-semibold text-gray uppercase mb-0.5 font-sans">
                             <span>Analog Gain</span>
-                            <span className="text-white font-mono font-bold">{cam.gain || 16}</span>
+                            <span className="text-white font-mono font-bold">{cam.gain || 16}x</span>
                           </div>
                           <input
                             type="range" min="8" max="64" step="2"
@@ -418,11 +428,11 @@ function ControlPanel({
                         <div>
                           <div className="flex justify-between text-[8px] font-semibold text-gray uppercase mb-0.5 font-sans">
                             <span>Slice Height (ROI)</span>
-                            <span className="text-white font-mono font-bold">{cam.slice_height || 200} px</span>
+                            <span className="text-white font-mono font-bold">{cam.slice_height || 256} px</span>
                           </div>
                           <input
-                            type="range" min="50" max="500" step="10"
-                            value={cam.slice_height || 200}
+                            type="range" min="64" max="512" step="32"
+                            value={cam.slice_height || 256}
                             disabled={isReadOnly}
                             onChange={(e) => updateSetting(`cameraControls.${camId}.slice_height`, parseInt(e.target.value))}
                             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan disabled:opacity-50"
@@ -436,7 +446,7 @@ function ControlPanel({
                             disabled={isReadOnly}
                             className={`py-1.5 rounded-xl text-[8px] font-bold uppercase tracking-wider border cursor-pointer disabled:opacity-50 ${cam.enhance ? 'bg-cyan/15 border-cyan text-cyan' : 'bg-navy/40 border-white/5 text-gray hover:text-white'}`}
                           >
-                            CLAHE Enhancement
+                            GPU / CPU CLAHE Enhancement
                           </button>
                         </div>
                       </div>

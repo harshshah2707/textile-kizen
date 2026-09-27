@@ -53,8 +53,8 @@ const DEFAULT_SETTINGS = {
     'Vertical': { enabled: true, threshold: 0.35, priority: 'high', alert: true }
   },
   cameraControls: {
-    cam1: { enabled: true, brightness: 50, exposure: 20, contrast: 50, enhance: false, recording: false },
-    cam2: { enabled: true, brightness: 50, exposure: 20, contrast: 50, enhance: false, recording: false }
+    cam1: { enabled: true, brightness: 50, exposure: 8, contrast: 50, enhance: false, recording: false },
+    cam2: { enabled: true, brightness: 50, exposure: 8, contrast: 50, enhance: false, recording: false }
   },
   alerts: {
     defectsMinThreshold: 5,
@@ -94,7 +94,6 @@ function App() {
 
   const isDemoMode = false;
   const [wsStatus, setWsStatus] = useState('disconnected'); // connected, disconnected, connecting
-  const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [wsLatency, setWsLatency] = useState(12);
   const [fps, setFps] = useState(30);
   const [activeDefects, setActiveDefects] = useState([]);
@@ -112,6 +111,12 @@ function App() {
     ram: 0,
     disk: 0
   });
+  const [cameraTelemetry, setCameraTelemetry] = useState({
+    mode: 'mindvision',
+    is_linescan: true,
+    cam1: { slice_fps: 60, strip_resolution: '2048x10240', type: 'linescan_emulator' }
+  });
+  const [isCameraReconnecting, setIsCameraReconnecting] = useState(false);
 
   // User Auth & Material Presets States
   const [userRole, setUserRole] = useState('operator');
@@ -131,7 +136,6 @@ function App() {
   const [activeRollId, setActiveRollId] = useState(null);
   const [activeRollNumber, setActiveRollNumber] = useState(null);
   const [rollNumberInput, setRollNumberInput] = useState('');
-  const [wantsSimulation, setWantsSimulation] = useState(true);
   const [operatorNameInput, setOperatorNameInput] = useState('operator');
   const [historicalRolls, setHistoricalRolls] = useState([]);
 
@@ -325,10 +329,6 @@ function App() {
               fabricWidth: settings.fabricWidth,
               cameraControls: settings.cameraControls
             }));
-            wsRef.current.send(JSON.stringify({
-              type: 'toggle_simulation',
-              enabled: wantsSimulation
-            }));
           }
         }
       })
@@ -356,13 +356,6 @@ function App() {
         setActiveRollId(null);
         setActiveRollNumber(null);
         setRollNumberInput('');
-        // Toggle simulation off
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({
-            type: 'toggle_simulation',
-            enabled: false
-          }));
-        }
         fetchHistoricalRolls();
       })
       .catch(err => alert(`Failed to finalize roll: ${err}`));
@@ -547,34 +540,7 @@ function App() {
     });
   }, [settings, triggerAlert, calculate4PointMetrics]);
 
-  // Toggle simulation mode via WebSocket
-  const toggleSimulation = useCallback(() => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      try {
-        const nextState = !isSimulationActive;
-        if (nextState) {
-          // Reset statistics on fresh simulation run
-          setDefectHistory([]);
-          setActiveDefects([]);
-          setSelectedDefect(null);
-          setBatchStats({
-            processedMeters: 0,
-            totalDefects: 0,
-            timeElapsed: 0,
-            status: 'PASS'
-          });
-        }
-        wsRef.current.send(JSON.stringify({
-          type: 'toggle_simulation',
-          enabled: nextState
-        }));
-      } catch (e) {
-        console.warn("Failed to toggle simulation mode", e);
-      }
-    } else {
-      alert("Loom edge server is offline. Please check connection.");
-    }
-  }, [isSimulationActive]);
+
 
   // WebSocket Connection Lifecycle
   useEffect(() => {
@@ -612,18 +578,26 @@ function App() {
           const startTime = performance.now();
           const data = JSON.parse(event.data);
           
+          if (data.type === 'camera_status') {
+            setCameraTelemetry(data);
+            setIsCameraReconnecting(false);
+            return;
+          }
+
+          if (data.type === 'camera_reconnecting') {
+            setIsCameraReconnecting(true);
+            return;
+          }
+
           if (data.type === 'heartbeat') {
             setSystemStats({
               cpu: data.cpu || 0,
               ram: data.ram || 0,
-              disk: data.disk || 0
+              disk: data.disk || 0,
+              slice_fps: data.slice_fps,
+              vram_used_gb: data.vram_used_gb
             });
             setWsLatency(Math.round(performance.now() - startTime));
-            return;
-          }
-
-          if (data.type === 'simulation_state') {
-            setIsSimulationActive(data.enabled);
             return;
           }
 
@@ -710,12 +684,12 @@ function App() {
     wsStatus
   ]);
 
-  // Live Loom Length & Timer tracking (only when simulation is active or in demo mode)
+  // Live Loom Length & Timer tracking (active during inspection roll)
   useEffect(() => {
     if (wsStatus !== 'connected' && !isDemoMode) {
       return;
     }
-    if (!isSimulationActive && !isDemoMode) {
+    if (!activeRollId && !isDemoMode) {
       return;
     }
     const metersInterval = setInterval(() => {
@@ -732,7 +706,7 @@ function App() {
     return () => {
       clearInterval(metersInterval);
     };
-  }, [settings.fabricSpeed, wsStatus, isDemoMode, isSimulationActive]);
+  }, [settings.fabricSpeed, wsStatus, isDemoMode, activeRollId]);
 
   const clearHistory = useCallback(() => {
     if (window.confirm("Are you sure you want to clear the defect history? This will reset all current session batch metrics.")) {
@@ -853,22 +827,10 @@ function App() {
                   </select>
                 </div>
 
-                {/* Simulation vs Live Feed Toggle Checkbox */}
-                <div 
-                  className="flex items-center gap-2.5 bg-navy/60 p-3 rounded-xl border border-white/5 cursor-pointer select-none" 
-                  onClick={() => setWantsSimulation(!wantsSimulation)}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={wantsSimulation}
-                    onChange={(e) => setWantsSimulation(e.target.checked)}
-                    className="w-4 h-4 rounded border-white/10 bg-navy cursor-pointer accent-blue-600 shrink-0"
-                    onClick={(e) => e.stopPropagation()} // Prevent double trigger
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Run in simulation mode</span>
-                    <span className="text-[8px] text-gray uppercase font-sans">Simulate scanning from dataset rather than webcam</span>
-                  </div>
+                {/* Hardware Camera Status Banner */}
+                <div className="bg-navy/40 p-3 rounded-xl border border-white/5 flex items-center justify-between text-[9px] font-mono text-gray">
+                  <span>CAMERA HARDWARE:</span>
+                  <span className="text-cyan font-bold uppercase">{settings.cameraMode || 'MindVision / USB'}</span>
                 </div>
 
                 <div className="bg-blue-600/10 border border-blue-500/20 p-3.5 rounded-xl text-slate-300 text-[9px] font-sans flex items-start gap-2.5">
@@ -1225,6 +1187,8 @@ function App() {
                   settings={settings}
                   isDemoMode={isDemoMode}
                   onSelectDefect={setSelectedDefect}
+                  cameraTelemetry={cameraTelemetry}
+                  isCameraReconnecting={isCameraReconnecting}
                 />
                 
                 <DefectsList 
@@ -1351,8 +1315,6 @@ function App() {
                   applyPreset={applyPreset}
                   clearHistory={clearHistory}
                   defectHistory={defectHistory}
-                  isSimulationActive={isSimulationActive}
-                  toggleSimulation={toggleSimulation}
                   userRole={userRole}
                   materials={materials}
                   selectedMaterial={selectedMaterial}

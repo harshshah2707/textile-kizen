@@ -17,11 +17,17 @@ def _Init():
 	is_x86 = (platform.architecture()[0] == '32bit')
 
 	if is_win:
-		_sdk = windll.MVCAMSDK if is_x86 else windll.MVCAMSDK_X64
 		CALLBACK_FUNC_TYPE = WINFUNCTYPE
+		try:
+			_sdk = windll.MVCAMSDK if is_x86 else windll.MVCAMSDK_X64
+		except Exception:
+			_sdk = None
 	else:
-		_sdk = cdll.LoadLibrary("libMVSDK.so")
 		CALLBACK_FUNC_TYPE = CFUNCTYPE
+		try:
+			_sdk = cdll.LoadLibrary("libMVSDK.so")
+		except Exception:
+			_sdk = None
 
 _Init()
 
@@ -628,11 +634,15 @@ def _str_to_string_buffer(str):
 	return create_string_buffer(s)
 
 def CameraSdkInit(iLanguageSel):
+	if _sdk is None:
+		return -5
 	err_code = _sdk.CameraSdkInit(iLanguageSel)
 	SetLastError(err_code)
 	return err_code
 
 def CameraEnumerateDevice(MaxCount = 32):
+	if _sdk is None:
+		return []
 	Nums = c_int(MaxCount)
 	pCameraList = (tSdkCameraDevInfo * Nums.value)()
 	err_code = _sdk.CameraEnumerateDevice(pCameraList, byref(Nums))
@@ -640,6 +650,8 @@ def CameraEnumerateDevice(MaxCount = 32):
 	return pCameraList[0:Nums.value]
 
 def CameraEnumerateDeviceEx():
+	if _sdk is None:
+		return []
 	return _sdk.CameraEnumerateDeviceEx()
 
 def CameraIsOpened(pCameraInfo):

@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TextileGuard Pro | Kizen Industrial AI Vision Platform</title>
+  <meta name="description" content="Kizen Engineering TextileGuard Pro — Commercial Line-Scan Defect Inspection Station for Textile Mills">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* KIZEN INDUSTRIAL PALETTE: BLACK, BLUE, WHITE, GREY ONLY */
+      --bg-base:       #080B11;
+      --bg-dark:       #0C1017;
+      --bg-panel:      #0F141F;
+      --bg-card:       #131826;
+      --bg-card-hover: #182033;
+      --bg-field:      #0A0D15;
+
+      --border:        #1E2638;
+      --border-bright: #2E3B55;
+      --border-accent: #2563EB;
+
+      /* BLUES */
+      --blue:          #2563EB;
+      --blue-hover:    #1D4ED8;
+      --blue-accent:   #3B82F6;
+      --blue-light:    #60A5FA;
+      --blue-deep:     #1E3A8A;
+      --blue-dim:      rgba(37, 99, 235, 0.12);
+
+      /* GREYS */
+      --grey-900:      #0F172A;
+      --grey-800:      #1E293B;
+      --grey-700:      #334155;
+      --grey-600:      #475569;
+      --grey-500:      #64748B;
+      --grey-400:      #94A3B8;
+      --grey-300:      #CBD5E1;
+      --grey-200:      #E2E8F0;
+
+      /* WHITES */
+      --text:          #FFFFFF;
+      --text-dim:      #CBD5E1;
+      --text-muted:    #94A3B8;
+      --text-subtle:   #64748B;
+
+      /* FUNCTIONAL ALERT (Subtle muted red for stop/error only) */
+      --danger:        #DC2626;
+      --danger-hover:  #B91C1C;
+      --danger-dim:    rgba(220, 38, 38, 0.14);
+
+      --mono:          'IBM Plex Mono', monospace;
+      --sans:          'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.6);
+      --shadow-md:     0 4px 12px rgba(0, 0, 0, 0.7);
+      --shadow-lg:     0 8px 24px rgba(0, 0, 0, 0.85);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--grey-800); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--blue-accent); }
+
+    /* TOP INDUSTRIAL HEADER BAR */
+    .sb {
+      position: fixed; top: 0; left: 0; right: 0; height: 52px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; z-index: 100; gap: 12px;
+    }
+    .sb-l, .sb-r { display: flex; align-items: center; gap: 12px; }
+    .brand {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+      font-family: var(--sans); font-size: 13px; font-weight: 800; letter-spacing: 0.04em;
+    }
+    .brand-logo-hex {
+      width: 28px; height: 28px; background: var(--blue);
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .brand-logo-hex::after {
+      content: ''; width: 10px; height: 10px; border: 2px solid #FFF; border-radius: 2px;
+    }
+    .brand-title { color: #FFF; font-weight: 800; }
+    .brand-sub { color: var(--blue-light); font-weight: 800; }
+    .sbdiv { width: 1px; height: 22px; background: var(--border); }
+    .sbs { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--mono); color: var(--text-muted); }
+    .sbs span { color: var(--text); font-weight: 600; }
+    .sbs-tagline { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--sans); font-weight: 600; }
+    
+    .pill {
+      display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+      border-radius: 4px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em; font-family: var(--mono); text-transform: uppercase;
+      transition: all 0.15s ease;
+    }
+    .pill.on { background: var(--blue-dim); color: var(--blue-light); border: 1px solid var(--border-accent); }
+    .pill.on::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue-accent); }
+    .pill.off { background: var(--grey-800); color: var(--grey-400); border: 1px solid var(--grey-700); }
+    .pill.off::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--grey-500); }
+    .pill.warn { background: rgba(71, 85, 105, 0.3); color: var(--grey-300); border: 1px solid var(--grey-600); }
+
+    .sbnav {
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text-dim); font-size: 11px;
+      font-family: var(--mono); font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: all 0.15s ease;
+    }
+    .sbnav:hover { border-color: var(--blue-accent); color: #FFF; background: var(--bg-card-hover); }
+
+    /* LAYOUT STRUCTURE & RESPONSIVENESS */
+    .layout {
+      position: relative; z-index: 1; display: grid;
+      grid-template-columns: 290px 1fr 320px; min-height: 100vh;
+      padding-top: 52px; background: transparent;
+    }
+    @media (max-width: 1400px) {
+      .layout { grid-template-columns: 260px 1fr 280px; }
+      .sbs-tagline { display: none; }
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .lp, .rp { border: none; }
+    }
+
+    .lp { background: var(--bg-panel); border-right: 1px solid var(--border); padding: 18px 14px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+    .mp { padding: 18px 18px; display: flex; flex-direction: column; gap: 16px; background: transparent; overflow-y: auto; }
+    .rp { background: var(--bg-panel); border-left: 1px solid var(--border); padding: 18px 14px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+    /* FLAT INDUSTRIAL CARDS (NO GLOW) */
+    .gc {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 14px; box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .gc:hover { border-color: var(--border-bright); }
+    .gc.ac { border-color: var(--border-accent); }
+
+    /* HEADERS & BADGES */
+    .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .st {
+      font-family: var(--sans); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .st .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-accent); flex-shrink: 0; }
+    
+    .badge {
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 3px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .bb { background: var(--blue-dim); color: var(--blue-light); border: 1px solid var(--border-accent); }
+    .bg { background: rgba(148, 163, 184, 0.12); color: var(--grey-300); border: 1px solid var(--grey-700); }
+    .bo { background: rgba(71, 85, 105, 0.25); color: var(--grey-300); border: 1px solid var(--grey-600); }
+    .br { background: var(--danger-dim); color: #FCA5A5; border: 1px solid var(--danger); }
+
+    /* HARDWARE NODE CARDS */
+    .ng { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .nd {
+      background: #0D111A; border: 1px solid var(--border);
+      border-radius: 5px; padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 3px;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .nd:hover { border-color: var(--blue-accent); background: var(--bg-card-hover); }
+    .nd.run { border-color: var(--border-accent); background: rgba(37, 99, 235, 0.08); }
+    .nd.war { border-color: var(--grey-600); background: rgba(71, 85, 105, 0.15); }
+    .nd.flt { border-color: var(--danger); background: var(--danger-dim); }
+    .nl { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); text-transform: uppercase; }
+    .ns { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+    .ns .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dg { background: var(--blue-accent); }
+    .do { background: var(--grey-500); }
+    .dr { background: var(--danger); }
+    .dgr { background: var(--grey-600); }
+    .nv { font-family: var(--mono); font-size: 9px; color: var(--text-muted); }
+
+    /* DIGITAL I/O MAP */
+    .iogrid { display: flex; flex-direction: column; gap: 8px; }
+    .iorow { display: flex; align-items: center; gap: 8px; }
+    .iolbl { font-family: var(--mono); font-size: 10px; color: var(--text-muted); width: 75px; flex-shrink: 0; font-weight: 600; }
+    .iobits { display: flex; gap: 4px; }
+    .bit {
+      width: 14px; height: 14px; border-radius: 2px;
+      border: 1px solid var(--border); background: var(--bg-field);
+      transition: all 0.15s ease;
+    }
+    .bit.bg2, .bit.bb2 { background: var(--blue); border-color: var(--blue-light); }
+    .bit.br2 { background: var(--danger); border-color: #EF4444; }
+    .bit.bo2 { background: var(--grey-600); border-color: var(--grey-400); }
+    .ioval { font-family: var(--mono); font-size: 10px; color: var(--blue-light); font-weight: 700; margin-left: auto; }
+
+    /* SLIDERS & CONTROLS */
+    .param { margin-bottom: 12px; }
+    .param:last-child { margin-bottom: 0; }
+    .ph { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .pn { font-size: 11px; font-weight: 600; color: var(--text); font-family: var(--sans); }
+    .pv { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--blue-light); }
+    .pu { font-size: 9px; color: var(--text-muted); margin-left: 2px; }
+    .plcslider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 5px; border-radius: 2px;
+      background: var(--grey-800); outline: none; cursor: pointer;
+    }
+    .plcslider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--blue); cursor: pointer;
+      border: 2px solid #FFFFFF;
+    }
+    .select-field, .input-field {
+      width: 100%; background: var(--bg-field); border: 1px solid var(--border);
+      color: var(--text); border-radius: 4px; padding: 6px 10px; font-size: 11px;
+      font-family: var(--mono); outline: none; transition: border-color 0.15s;
+    }
+    .select-field:focus, .input-field:focus { border-color: var(--blue); }
+
+    /* TELEMETRY METERS */
+    .mr { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .mr:last-child { margin-bottom: 0; }
+    .mh { display: flex; justify-content: space-between; align-items: center; }
+    .mlb { font-family: var(--mono); font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .mv { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text); }
+    .mtr { height: 5px; background: var(--grey-800); border-radius: 2px; overflow: hidden; }
+    .mf { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+    .fb, .fg, .fo { background: var(--blue); }
+    .fr { background: var(--danger); }
+
+    /* FLAT KPI GRID (NO GLOW) */
+    .kgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 800px) { .kgrid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 4px;
+      box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .kpi::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--border-bright); }
+    .kpi.kb::after { background: var(--blue); }
+    .kpi.kg::after { background: var(--blue-accent); }
+    .kpi.ko::after { background: var(--grey-600); }
+    .kpi.kr::after { background: var(--danger); }
+    .kpi:hover { border-color: var(--border-bright); }
+    .kl { font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    .kv { font-family: var(--mono); font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .cb { color: var(--blue-light); } 
+    .cg { color: #FFFFFF; } 
+    .co { color: var(--grey-300); } 
+    .cr { color: #FCA5A5; }
+    .ks { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+    .kt { font-family: var(--mono); font-size: 10px; font-weight: 600; margin-top: 2px; }
+    .tu { color: #FCA5A5; } .td { color: var(--blue-light); } .tf { color: var(--text-muted); }
+
+    /* ROLL INSPECTION PROGRESS */
+    .rpw { position: relative; height: 16px; background: var(--bg-field); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .rpf { height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.3s ease; }
+    .rpt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; font-weight: 700; color: #FFF; }
+
+    /* HERO CAMERA FEED CONTAINER & OVERLAY HUD */
+    .hero-cam {
+      background: var(--bg-dark); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      display: flex; flex-direction: column; box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .cf {
+      width: 100%; aspect-ratio: 16/9; min-height: 380px; max-height: 520px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; background: #000000;
+    }
+    .cf img.mjpeg { width: 100%; height: 100%; object-fit: contain; display: block; }
+    #cam-overlay-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 5;
+    }
+    .cf-placeholder {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      background: var(--bg-dark); z-index: 4; font-family: var(--mono);
+      font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .spinner {
+      width: 28px; height: 28px; border: 3px solid var(--grey-800);
+      border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .cfoot {
+      padding: 10px 14px; background: var(--bg-panel);
+      border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+    }
+    .cname { font-family: var(--mono); font-size: 11px; font-weight: 700; color: #FFF; letter-spacing: 0.04em; }
+    .crec { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--blue-light); display: flex; align-items: center; gap: 6px; }
+    .crec::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--blue-accent); }
+    .cfps { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+    /* 2D ROLL DEFECT MAP (INTERACTIVE) */
+    .defect-map-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+      position: relative;
+    }
+    .defect-canvas-wrap {
+      position: relative; width: 100%; height: 75px; background: var(--bg-base);
+      border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+      cursor: crosshair;
+    }
+    #defect-canvas { width: 100%; height: 100%; display: block; }
+    .defect-map-axis {
+      display: flex; justify-content: space-between; font-family: var(--mono);
+      font-size: 9px; color: var(--text-muted); font-weight: 600;
+    }
+    .map-tooltip {
+      position: absolute; display: none; background: var(--bg-panel); border: 1px solid var(--border-accent);
+      border-radius: 4px; padding: 4px 8px;
+      font-family: var(--mono); font-size: 10px; color: #FFF; pointer-events: none;
+      z-index: 50; white-space: nowrap; transform: translate(-50%, -120%);
+    }
+
+    /* DEFECT LOG TABLE */
+    .dt { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+    .dt th {
+      background: var(--bg-dark); color: var(--text-muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px;
+      padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .dt td { padding: 8px 10px; border-bottom: 1px solid #141A28; color: var(--text); vertical-align: middle; }
+    .dt tr:hover td { background: rgba(37, 99, 235, 0.06); cursor: pointer; }
+    .dt tr.selected td { background: rgba(37, 99, 235, 0.14); border-color: var(--blue); }
+
+    /* FLAT BUTTONS (NO GLOW) */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 14px; border-radius: 4px; font-family: var(--mono); font-size: 11px;
+      font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+      border: 1px solid transparent; transition: all 0.15s ease; outline: none;
+    }
+    .btnp { background: var(--blue); color: #FFF; border-color: var(--blue-hover); }
+    .btnp:hover { background: var(--blue-hover); }
+    .btns { background: var(--blue); color: #FFF; border-color: var(--blue-hover); }
+    .btns:hover { background: var(--blue-hover); }
+    .btnd { background: var(--danger); color: #FFF; border-color: var(--danger-hover); }
+    .btnd:hover { background: var(--danger-hover); }
+    .btno { background: var(--grey-800); border-color: var(--danger); color: #FCA5A5; }
+    .btno:hover { background: var(--danger); color: #FFF; }
+    .btng { background: var(--grey-800); border-color: var(--grey-700); color: var(--grey-200); }
+    .btng:hover { background: var(--grey-700); color: #FFF; border-color: var(--blue-accent); }
+    .wf { width: 100%; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+    /* TOGGLE SWITCHES (NO GLOW) */
+    .trow { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #141A28; }
+    .trow:last-child { border-bottom: none; }
+    .ti { display: flex; flex-direction: column; gap: 2px; }
+    .tlb { font-size: 11px; font-weight: 600; color: var(--text); }
+    .tds { font-size: 9px; color: var(--text-muted); }
+    .tsw { position: relative; width: 34px; height: 18px; display: inline-block; cursor: pointer; }
+    .tsw input { opacity: 0; width: 0; height: 0; }
+    .ttr {
+      position: absolute; inset: 0; background: var(--grey-800); border-radius: 9px;
+      transition: all 0.15s ease;
+    }
+    .ttr::before {
+      content: ''; position: absolute; width: 12px; height: 12px; left: 3px; top: 3px;
+      border-radius: 50%; background: var(--grey-500); transition: all 0.15s ease;
+    }
+    .tsw input:checked + .ttr { background: var(--blue); }
+    .tsw input:checked + .ttr::before { transform: translateX(16px); background: #FFFFFF; }
+
+    /* MODBUS REGISTERS */
+    .rgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .ri {
+      background: var(--bg-field); border: 1px solid var(--border); border-radius: 4px;
+      padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;
+    }
+    .ra { font-family: var(--mono); font-size: 8px; color: var(--text-muted); font-weight: 600; }
+    .rv { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--blue-light); }
+    .rl { font-size: 9px; color: var(--text-dim); }
+
+    /* ALARMS */
+    .almlist { max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+    .almi {
+      display: flex; align-items: center; justify-content: space-between; padding: 4px 8px;
+      border-radius: 3px; font-family: var(--mono); font-size: 10px;
+    }
+    .almi.c { background: var(--danger-dim); color: #FCA5A5; border: 1px solid rgba(220,38,38,0.3); }
+    .almi.w { background: rgba(71,85,105,0.25); color: var(--grey-300); border: 1px solid var(--grey-600); }
+    .almi.i { background: var(--blue-dim); color: var(--blue-light); border: 1px solid var(--border-accent); }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 200; display: none;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card {
+      background: var(--bg-panel); border: 1px solid var(--border-bright);
+      border-radius: 8px; width: 100%; max-width: 980px; max-height: 85vh;
+      display: flex; flex-direction: column; box-shadow: var(--shadow-lg);
+    }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-family: var(--sans); font-size: 14px; font-weight: 700; color: #FFF; }
+    .modal-body { padding: 18px; overflow-y: auto; flex-grow: 1; }
+
+    /* HELPERS */
+    .fl { display: flex; }
+    .fc { display: flex; flex-direction: column; }
+    .ic { align-items: center; }
+    .jb { justify-content: space-between; }
+    .g2 { gap: 8px; }
+    .g3 { gap: 12px; }
+    .mt2 { margin-top: 8px; }
+    .mt3 { margin-top: 12px; }
+    .mb2 { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- TOP INDUSTRIAL HEADER -->
+<div class="sb">
+  <div class="sb-l">
+    <a href="https://kizen.co.in/" target="_blank" class="brand">
+      <div class="brand-logo-hex"></div>
+      <div>
+        <span class="brand-title">KIZEN</span> <span class="brand-sub">ENGINEERING</span>
+      </div>
+    </a>
+    <div class="sbdiv"></div>
+    <div class="sbs-tagline">Industrial Vision Automation</div>
+    <div class="sbdiv"></div>
+    <div class="sbs">ROLL <span id="sb-roll">IDLE</span></div>
+    <div class="sbs">OPERATOR <span id="sb-op">operator</span></div>
+    <div class="sbs">MATERIAL <span id="sb-mat">Cotton</span></div>
+  </div>
+  <div class="sb-r">
+    <div class="sbs">CPU <span id="sb-cpu">–</span></div>
+    <div class="sbs">RAM <span id="sb-ram">–</span></div>
+    <div class="pill off" id="ws-pill">OFFLINE</div>
+    <div class="pill on" id="gige-pill">GIGE ONLINE</div>
+    <div class="sbs"><span id="sbclock">00:00:00</span></div>
+    <button class="sbnav" onclick="openSavedRollsModal()">📋 Saved Rolls</button>
+    <a href="https://kizen.co.in/" target="_blank" class="sbnav" style="border-color:var(--border-accent);color:var(--blue-light);">🌐 kizen.co.in</a>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT CONTROL & CALIBRATION PANEL -->
+  <div class="lp">
+
+    <!-- Machine Hardware Nodes -->
+    <div class="gc ac">
+      <div class="sh">
+        <div class="st"><div class="dot"></div>Machine Vision Nodes</div>
+        <div class="badge bb" id="nodes-badge">ONLINE</div>
+      </div>
+      <div class="ng">
+        <div class="nd run" id="nd-cam1">
+          <div class="nl">CAM-1 GIGE</div>
+          <div class="ns"><div class="dot dg" id="cam1-dot"></div><span id="cam1-status" style="color:var(--blue-light)">ONLINE</span></div>
+          <div class="nv" id="cam1-fps">GELM44M-T2</div>
+        </div>
+        <div class="nd" id="nd-ai">
+          <div class="nl">AI-INFER</div>
+          <div class="ns"><div class="dot dg" id="ai-dot"></div><span id="ai-status" style="color:var(--blue-light)">ACTIVE</span></div>
+          <div class="nv" id="ai-fps">RTX 3050 FP16</div>
+        </div>
+        <div class="nd" id="nd-loom">
+          <div class="nl">LOOM DRIVE</div>
+          <div class="ns"><div class="dot do" id="loom-dot"></div><span id="loom-status" style="color:var(--grey-300)">READY</span></div>
+          <div class="nv" id="nd-speed">12.0 m/min</div>
+        </div>
+        <div class="nd" id="nd-ws">
+          <div class="nl">WS BRIDGE</div>
+          <div class="ns"><div class="dot dg" id="ws-dot"></div><span id="ws-status" style="color:var(--blue-light)">CONNECTED</span></div>
+          <div class="nv" id="ws-latency">1 ms</div>
+        </div>
+        <div class="nd" id="nd-db">
+          <div class="nl">SQLITE DB</div>
+          <div class="ns"><div class="dot dg"></div><span style="color:var(--blue-light)">RECORDING</span></div>
+          <div class="nv">Persistent</div>
+        </div>
+        <div class="nd" id="nd-line">
+          <div class="nl">SCAN FREQ</div>
+          <div class="ns"><div class="dot dg"></div><span id="scan-khz" style="color:var(--blue-light)">27.5 kHz</span></div>
+          <div class="nv">Line-Scan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Hardware Optical Controls -->
+    <div class="gc">
+      <div class="sh">
+        <div class="st"><div class="dot"></div>Camera Optical Setup</div>
+        <div class="badge bb" id="cam-active-badge">GigE Vision</div>
+      </div>
+
+      <!-- Hardware Sensor Information -->
+      <div class="param" style="background:var(--bg-field); padding:8px 10px; border-radius:4px; border:1px solid var(--border); margin-bottom:12px;">
+        <div class="ph">
+          <div class="pn" style="color:var(--blue-light);font-weight:700;">Active Optical Sensor</div>
+          <div class="pv" id="cam-status-pill" style="font-size:9px;color:var(--blue-light);">ONLINE</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);margin-top:2px;">
+          ChinaVision GELM44M-T2 (GigE Line-Scan)
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:4px;display:flex;justify-content:space-between;align-items:center;">
+          <span id="cam-driver-desc">GigE Vision UDP GVSP (1000+ Hz Line Rate)</span>
+          <span style="color:var(--blue-light);font-weight:700;">169.254.231.206</span>
+        </div>
+      </div>
+      
+      <!-- Exposure Time -->
+      <div class="param">
+        <div class="ph">
+          <div class="pn">Exposure Time</div>
+          <div class="pv" id="exp-v">1800<span class="pu">µs (1.8ms)</span></div>
+        </div>
+        <input type="range" class="plcslider" id="exp-sl" min="100" max="4000" step="50" value="1800" oninput="updateExp(this.value)">
+        <div class="fl g2 mt2">
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(1000)">1000µs Fast</button>
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(1800)">1800µs Std</button>
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(2200)">2200µs Textile</button>
+        </div>
+      </div>
+
+      <!-- Hardware Gain -->
+      <div class="param">
+        <div class="ph">
+          <div class="pn">Hardware Gain</div>
+          <div class="pv" id="gain-v">10.0<span class="pu">x</span></div>
+        </div>
+        <input type="range" class="plcslider" id="gain-sl" min="1.0" max="24.0" step="0.5" value="10.0" oninput="updateGain(this.value)">
+      </div>
+
+      <!-- Slice Height -->
+      <div class="param">
+        <div class="ph">
+          <div class="pn">Acquisition Slices</div>
+          <div class="pv" id="sh-v">128<span class="pu">px</span></div>
+        </div>
+        <select id="sh-sel" class="select-field" onchange="pushCameraHardwareSettings()">
+          <option value="32">32 px (High-Speed 30+ FPS)</option>
+          <option value="64" selected>64 px (Fluid 16 FPS)</option>
+          <option value="128">128 px (Standard Chunk)</option>
+          <option value="256">256 px (Deep Block)</option>
+        </select>
+      </div>
+
+      <button class="btn btnp wf mt2" onclick="pushCameraHardwareSettings()">Sync Camera Registers</button>
+    </div>
+
+    <!-- Process Parameters -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>Machine Process Tuning</div></div>
+      <div class="param">
+        <div class="ph"><div class="pn">Fabric Speed</div><div class="pv" id="spd-v">12.0<span class="pu">m/min</span></div></div>
+        <input type="range" class="plcslider" id="spd-sl" min="1" max="30" step="0.5" value="12" oninput="updateParam('spd-v',this.value,'m/min');pbar('spd-b',this.value/30*100);pushSettings()">
+        <div class="mtr mt2"><div class="mf fb" id="spd-b" style="width:40%"></div></div>
+      </div>
+      <div class="param">
+        <div class="ph"><div class="pn">AI Confidence Cutoff</div><div class="pv" id="conf-v">0.45<span class="pu"></span></div></div>
+        <input type="range" class="plcslider" id="conf-sl" min="0.10" max="0.95" step="0.05" value="0.45" oninput="updateParam('conf-v',parseFloat(this.value).toFixed(2),'');pbar('conf-b',this.value/0.95*100);pushSettings()">
+        <div class="mtr mt2"><div class="mf fb" id="conf-b" style="width:47%"></div></div>
+      </div>
+      <div class="param">
+        <div class="ph"><div class="pn">NMS IOU Overlap</div><div class="pv" id="iou-v">0.45<span class="pu"></span></div></div>
+        <input type="range" class="plcslider" id="iou-sl" min="0.10" max="0.95" step="0.05" value="0.45" oninput="updateParam('iou-v',parseFloat(this.value).toFixed(2),'');pbar('iou-b',this.value/0.95*100);pushSettings()">
+        <div class="mtr mt2"><div class="mf fb" id="iou-b" style="width:47%"></div></div>
+      </div>
+      <div class="param">
+        <div class="ph"><div class="pn">Fabric Width</div><div class="pv" id="wid-v">1800<span class="pu">mm</span></div></div>
+        <input type="range" class="plcslider" id="wid-sl" min="800" max="3200" step="50" value="1800" oninput="updateParam('wid-v',this.value,'mm');pbar('wid-b',(this.value-800)/(3200-800)*100);updateDefectMapWidth(this.value)">
+        <div class="mtr mt2"><div class="mf fb" id="wid-b" style="width:42%"></div></div>
+      </div>
+      <button class="btn btng wf mt3" onclick="saveParams()">💾 Save Active Preset</button>
+    </div>
+
+    <!-- Digital I/O Map -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>Digital I/O Channels</div><div class="badge bb">8 CH</div></div>
+      <div class="iogrid">
+        <div class="iorow">
+          <div class="iolbl">DI 0–7</div>
+          <div class="iobits">
+            <div class="bit" id="di0" title="DI0: Start"></div>
+            <div class="bit" id="di1" title="DI1: Run (Active)"></div>
+            <div class="bit" id="di2" title="DI2: AI Engine"></div>
+            <div class="bit" id="di3" title="DI3: Alarm Pin"></div>
+            <div class="bit bg2" id="di4" title="DI4: Cam1 RDY"></div>
+            <div class="bit" id="di5" title="DI5: Spare"></div>
+            <div class="bit" id="di6" title="DI6: Spare"></div>
+            <div class="bit" id="di7" title="DI7: Fault"></div>
+          </div><div class="ioval" id="di-hex">10h</div>
+        </div>
+        <div class="iorow">
+          <div class="iolbl">DO 0–7</div>
+          <div class="iobits">
+            <div class="bit" id="do0" title="DO0: Drive En"></div>
+            <div class="bit bg2" id="do1" title="DO1: Lights Active"></div>
+            <div class="bit" id="do2" title="DO2: AI Active"></div>
+            <div class="bit" id="do3" title="DO3: Buzzer Bell"></div>
+            <div class="bit" id="do4" title="DO4: Warn Indicator"></div>
+            <div class="bit" id="do5" title="DO5: Spare"></div>
+            <div class="bit" id="do6" title="DO6: Spare"></div>
+            <div class="bit" id="do7" title="DO7: E-Stop State"></div>
+          </div><div class="ioval" id="do-hex">02h</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CENTER MAIN VISION & INSPECTION AREA -->
+  <div class="mp">
+
+    <!-- KPI Metric Summary -->
+    <div class="kgrid">
+      <div class="kpi kb">
+        <div class="kl">Inspected Length</div>
+        <div class="kv cb" id="kpi-m">0.00</div>
+        <div class="ks">meters roll travel</div>
+        <div class="kt tf">→ Continuous Tracking</div>
+      </div>
+      <div class="kpi kr">
+        <div class="kl">Defects Detected</div>
+        <div class="kv cr" id="kpi-d">0</div>
+        <div class="ks">total defect count</div>
+        <div class="kt tu" id="kpi-dt">↑ 0 last 60s</div>
+      </div>
+      <div class="kpi ko">
+        <div class="kl">ASTM D5430 Points</div>
+        <div class="kv co" id="kpi-p">0.0</div>
+        <div class="ks">pts / 100m² score</div>
+        <div class="kt tf" id="kpi-gr">Grade: –</div>
+      </div>
+      <div class="kpi kg">
+        <div class="kl">Quality Verdict</div>
+        <div class="kv cg" id="kpi-s">IDLE</div>
+        <div class="ks">inspection status</div>
+        <div class="kt" id="kpi-sg">Awaiting Roll Start</div>
+      </div>
+    </div>
+
+    <!-- Roll Inspection Progress Bar -->
+    <div class="gc">
+      <div class="sh">
+        <div class="st"><div class="dot"></div>Fabric Roll Inspection Progress</div>
+        <div class="fl g2 ic">
+          <div class="badge bb" id="roll-badge">No Active Roll</div>
+          <div class="badge bb" id="mat-badge">Cotton</div>
+        </div>
+      </div>
+      <div class="rpw">
+        <div class="rpf" id="rp-fill" style="width:0%"></div>
+        <div class="rpt" id="rp-txt">Start inspection roll to begin</div>
+      </div>
+      <div class="fl jb mt2">
+        <div class="sbs">START <span id="roll-start">–</span></div>
+        <div class="sbs">ELAPSED <span id="roll-elapsed">00:00:00</span></div>
+        <div class="sbs">ETA <span id="roll-eta">–</span></div>
+        <div class="sbs">SPEED <span id="roll-speed">12.0 m/min</span></div>
+      </div>
+    </div>
+
+    <!-- Roll Setup Form Card -->
+    <div class="gc" id="roll-form-card">
+      <div class="sh"><div class="st"><div class="dot"></div>Start Inspection Session (Saved to Database)</div></div>
+      <div class="fl g2 ic" style="flex-wrap:wrap">
+        <div style="flex:1;min-width:140px">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase">Roll Number</div>
+          <input id="inp-roll" class="input-field" type="text" value="" placeholder="e.g. ROLL-2026-0927">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase">Operator</div>
+          <input id="inp-op" class="input-field" type="text" value="operator">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase">Material Type</div>
+          <select id="inp-mat" class="input-field">
+            <option>Cotton</option><option>Denim</option><option>Linen</option><option>Shirt fabric</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn btnp" onclick="startRoll()" style="padding:7px 18px">▶ Launch Inspection</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO LIVE CAMERA FEED (Full Width Primary Inspection) -->
+    <div class="hero-cam">
+      <div class="cf" id="cam1-feed">
+        <img class="mjpeg" id="cam1-img" src="/video_feed/1" alt="ChinaVision GigE Line-Scan Stream" onerror="handleStreamError()">
+        <canvas id="cam-overlay-canvas"></canvas>
+        <div class="cf-placeholder" id="cam1-placeholder" style="display:none">
+          <div class="spinner"></div>
+          <span>CONNECTING CHINAVISION GIGE CAMERA FEED…</span>
+        </div>
+      </div>
+      <div class="cfoot">
+        <div class="fl g2 ic">
+          <div class="cname" id="cfoot-name">CAM-1 · CHINA-VISION GELM44M-T2 (GIGE LINE-SCAN)</div>
+        </div>
+        <div class="crec" id="rec1">HARDWARE LIVE FEED</div>
+        <div class="cfps">
+          <span id="scan-rate-badge" style="color:var(--blue-light);font-weight:700">SCAN: 1000 Hz</span> | 
+          AI FPS <span id="fps-display" style="color:#FFF;font-weight:700">30.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE 2D ROLL DEFECT MAP -->
+    <div class="defect-map-container">
+      <div class="sh" style="margin-bottom:6px">
+        <div class="st"><div class="dot"></div>2D Fabric Roll Defect Map (Length vs Width)</div>
+        <div class="fl g2 ic">
+          <span class="sbs" style="font-size:9px">WIDTH: <b id="map-w-lbl" style="color:var(--blue-light)">1800mm</b></span>
+          <span class="sbs" style="font-size:9px">ROLL: <b id="map-l-lbl" style="color:var(--text)">200m</b></span>
+        </div>
+      </div>
+      <div class="defect-canvas-wrap" id="canvas-wrap">
+        <canvas id="defect-canvas"></canvas>
+        <div class="map-tooltip" id="map-tooltip"></div>
+      </div>
+      <div class="defect-map-axis">
+        <span>0 m (Start)</span>
+        <span>50 m</span>
+        <span>100 m</span>
+        <span>150 m</span>
+        <span>200 m (End)</span>
+      </div>
+    </div>
+
+    <!-- Real-Time Defect Log Table -->
+    <div class="gc" style="flex:1">
+      <div class="sh">
+        <div class="st"><div class="dot"></div>Live Inspection Defect Log <span style="color:var(--blue-light);margin-left:6px" id="model-tag">(YOLOv8 Active)</span></div>
+        <div class="fl g2 ic">
+          <select id="filter-type" class="select-field" style="width:auto;padding:3px 8px;font-size:10px" onchange="renderTable()">
+            <option value="ALL">All Defects</option>
+            <option value="CRITICAL">Critical Only</option>
+            <option value="HIGH">High Priority</option>
+            <option value="MEDIUM">Medium Priority</option>
+          </select>
+          <span class="badge br" id="defect-badge">0 DETECTED</span>
+          <button class="btn btng" style="padding:4px 10px;font-size:10px" onclick="clearDefects()">⌫ Clear Log</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;max-height:220px">
+        <table class="dt">
+          <thead>
+            <tr><th>#</th><th>Defect Type</th><th>Confidence</th><th>Cam</th><th>Coordinates</th><th>Size (mm)</th><th>Points</th><th>Distance</th><th>Time</th><th>Severity</th></tr>
+          </thead>
+          <tbody id="dt-body">
+            <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:24px;font-weight:500">── START ROLL INSPECTION TO RECORD LIVE DEFECTS ──</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt3">
+        <div class="st mb2" style="margin-bottom:6px"><div class="dot"></div>Defect Frequency Trend (60s Real-Time Window)</div>
+        <div style="height:60px;position:relative;background:var(--bg-base);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+          <svg viewBox="0 0 600 60" preserveAspectRatio="none" style="width:100%;height:100%">
+            <defs>
+              <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2563EB" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path id="sf" fill="url(#sg)" d="M0,60 L600,60 Z"/>
+            <path id="sl" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M0,60"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT TELEMETRY & SYSTEM OPERATIONS PANEL -->
+  <div class="rp">
+
+    <!-- Hardware System Telemetry -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>System & Hardware Telemetry</div><div class="badge bb">LIVE</div></div>
+      <div class="mr"><div class="mh"><div class="mlb">CPU Usage</div><div class="mv" id="cpu-v">–</div></div><div class="mtr"><div class="mf fb" id="cpu-b" style="width:0%"></div></div></div>
+      <div class="mr"><div class="mh"><div class="mlb">RAM Memory</div><div class="mv" id="ram-v">–</div></div><div class="mtr"><div class="mf fb" id="ram-b" style="width:0%"></div></div></div>
+      <div class="mr"><div class="mh"><div class="mlb">Disk Usage</div><div class="mv" id="disk-v">–</div></div><div class="mtr"><div class="mf fg" id="disk-b" style="width:0%"></div></div></div>
+      <div class="mr"><div class="mh"><div class="mlb">WS Latency</div><div class="mv" id="lat-v">1 ms</div></div><div class="mtr"><div class="mf fb" id="lat-b" style="width:5%"></div></div></div>
+      <div class="mr"><div class="mh"><div class="mlb">AI Inference Speed</div><div class="mv" id="aifps-v">30.0 fps</div></div><div class="mtr"><div class="mf fg" id="aifps-b" style="width:100%"></div></div></div>
+      <div class="mr"><div class="mh"><div class="mlb">Line-Scan Rate</div><div class="mv" id="scan-v" style="color:var(--blue-light);font-weight:700">STANDBY</div></div><div class="mtr"><div class="mf fg" id="scan-b" style="width:0%;background:var(--blue)"></div></div></div>
+    </div>
+
+    <!-- PLC Modbus Register Map -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>PLC Modbus Holding Registers</div><div class="badge bb">RS485</div></div>
+      <div class="rgrid">
+        <div class="ri"><div class="ra">40001·WORD</div><div class="rv" id="r-spd">0x0078</div><div class="rl">Drive Speed</div></div>
+        <div class="ri"><div class="ra">40002·WORD</div><div class="rv" id="r-ten">0x01F4</div><div class="rl">Fabric Tension</div></div>
+        <div class="ri"><div class="ra">40003·WORD</div><div class="rv" id="r-cpu">0x0000</div><div class="rl">CPU Metric</div></div>
+        <div class="ri"><div class="ra">40004·WORD</div><div class="rv" id="r-def">0x0000</div><div class="rl">Defect Count</div></div>
+        <div class="ri"><div class="ra">40005·DWORD</div><div class="rv" id="r-mtr">0x00000000</div><div class="rl">Meters Counter</div></div>
+        <div class="ri"><div class="ra">40010·WORD</div><div class="rv" id="r-sts">0x0000</div><div class="rl">Status Code</div></div>
+      </div>
+    </div>
+
+    <!-- Active Hardware Configuration -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>Hardware Vision Engines</div></div>
+      <div class="trow"><div class="ti"><div class="tlb">AI YOLOv8 Engine</div><div class="tds">High-speed defect detection</div></div><label class="tsw"><input type="checkbox" checked id="t-ai"><div class="ttr"></div></label></div>
+      <div class="trow"><div class="ti"><div class="tlb">Motion-Gated Scanning</div><div class="tds">Pause canvas when fabric stops</div></div><label class="tsw"><input type="checkbox" id="t-mg" onchange="pushCameraHardwareSettings()"><div class="ttr"></div></label></div>
+      <div class="trow"><div class="ti"><div class="tlb">Audio Alarm Buzzer</div><div class="tds">Audible alert on critical defects</div></div><label class="tsw"><input type="checkbox" checked id="t-snd"><div class="ttr"></div></label></div>
+      <div class="trow"><div class="ti"><div class="tlb">CLAHE Normalization</div><div class="tds">Hardware contrast stretching</div></div><label class="tsw"><input type="checkbox" checked id="t-cl" onchange="pushCameraHardwareSettings()"><div class="ttr"></div></label></div>
+      <div class="trow"><div class="ti"><div class="tlb">SQLite Auto-Persist</div><div class="tds">Database storage for all rolls</div></div><label class="tsw"><input type="checkbox" checked id="t-log" disabled><div class="ttr"></div></label></div>
+    </div>
+
+    <!-- Alarm Log -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>Active Alarm Log</div><div class="badge br" id="alm-badge">0 ACTIVE</div></div>
+      <div class="almlist" id="alm-list"></div>
+      <button class="btn btng wf mt3" style="font-size:10px;padding:8px" onclick="ackAlarms()">✓ Acknowledge Alarms</button>
+    </div>
+
+    <!-- Machine Operations -->
+    <div class="gc">
+      <div class="sh"><div class="st"><div class="dot"></div>Roll Machine Operations</div></div>
+      <div class="fc g2">
+        <div class="fl g2">
+          <button class="btn btnp wf" id="btn-start" onclick="startRoll()">▶ START ROLL</button>
+          <button class="btn btnd wf" id="btn-stop" onclick="stopRoll()" disabled>■ STOP ROLL</button>
+        </div>
+        <button class="btn btno wf" onclick="eStop()">⚠ EMERGENCY STOP</button>
+        <div class="fl g2">
+          <button class="btn btng wf" onclick="openSavedRollsModal()" style="font-size:10px">📋 View History</button>
+          <button class="btn btng wf" onclick="exportRpt()" style="font-size:10px">⬇ Export JSON</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SAVED ROLLS HISTORY MODAL -->
+<div class="modal-backdrop" id="rolls-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">📋 Saved Inspection Rolls Database (SQLite Persisted)</div>
+      <button class="btn btng" style="padding:4px 10px;font-size:11px" onclick="closeSavedRollsModal()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <table class="dt" style="font-size:11px">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Roll Number</th>
+            <th>Material</th>
+            <th>Operator</th>
+            <th>Length (m)</th>
+            <th>Points/100m²</th>
+            <th>Grade</th>
+            <th>Started At</th>
+            <th>Ended At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="saved-rolls-body">
+          <tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted)">Loading saved roll records from database…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// BACKEND CONFIGURATION & REAL HARDWARE INTEGRATION
+// ═══════════════════════════════════════════════════════════
+const WS_HOST  = window.location.hostname || 'localhost';
+const WS_URL   = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + WS_HOST + ':8765';
+const API_BASE = window.location.origin;
+
+// State Variables
+let ws = null, wsReconnectTimer = null;
+let meters = 0, defectCount = 0, totalPoints = 0;
+let elapsedSecs = 0, fabricSpeed = 12.0, rollLength = 200, fabricWidthMm = 1800;
+let activeRollId = null, activeRollNumber = null;
+let defects = [], defectWin = [], trendData = Array(60).fill(0);
+let tickInterval = null, wsLatency = 0;
+let wsConnected = false;
+let activeDefectBoxes = []; // Active camera overlay bboxes with decay
+
+const DEFECT_CONFIG = {
+  'hole':          {points:4, color:'#FFFFFF', priority:'CRITICAL'},
+  'Broken stitch': {points:3, color:'#FFFFFF', priority:'CRITICAL'},
+  'stain':         {points:2, color:'#60A5FA', priority:'HIGH'},
+  'lines':         {points:2, color:'#60A5FA', priority:'HIGH'},
+  'horizontal':    {points:2, color:'#60A5FA', priority:'HIGH'},
+  'Needle mark':   {points:1, color:'#94A3B8', priority:'MEDIUM'},
+  'Pinched fabric':{points:1, color:'#94A3B8', priority:'MEDIUM'},
+  'Vertical':      {points:2, color:'#60A5FA', priority:'HIGH'},
+};
+
+// Clock
+setInterval(() => {
+  document.getElementById('sbclock').textContent = new Date().toTimeString().slice(0, 8);
+}, 1000);
+
+// Normalize Bounding Box coordinates whether sent as [x1,y1,x2,y2] or {x,y,width,height}
+function parseBbox(box) {
+  if (!box) return { x: 0.5, y: 0.5, w: 0.05, h: 0.05, centerX: 0.5 };
+  let x = 0, y = 0, w = 0, h = 0;
+  if (Array.isArray(box)) {
+    let [x1, y1, x2, y2] = box;
+    if (x2 <= 1 && y2 <= 1) { // normalized floats
+      x = x1; y = y1; w = x2 - x1; h = y2 - y1;
+    } else { // pixels
+      x = x1 / 1280; y = y1 / 720; w = (x2 - x1) / 1280; h = (y2 - y1) / 720;
+    }
+  } else if (typeof box === 'object') {
+    let px = box.x || 0, py = box.y || 0, pw = box.width || 0, ph = box.height || 0;
+    if (px <= 1 && pw <= 1) {
+      x = px; y = py; w = pw; h = ph;
+    } else {
+      x = px / 1280; y = py / 720; w = pw / 1280; h = ph / 720;
+    }
+  }
+  x = Math.max(0, Math.min(x, 1));
+  y = Math.max(0, Math.min(y, 1));
+  w = Math.max(0.01, Math.min(w, 1));
+  h = Math.max(0.01, Math.min(h, 1));
+  return { x, y, w, h, centerX: Math.max(0, Math.min(x + w / 2, 1)) };
+}
+
+// Stream error handler
+function handleStreamError() {
+  const ph = document.getElementById('cam1-placeholder');
+  const img = document.getElementById('cam1-img');
+  if (ph) ph.style.display = 'flex';
+  setTimeout(() => {
+    if (img) img.src = `/video_feed/1?t=${Date.now()}`;
+    if (ph) ph.style.display = 'none';
+  }, 2000);
+}
+
+// Load Material Presets
+function loadMaterials() {
+  fetch(`${API_BASE}/api/materials`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.length) return;
+      const sel = document.getElementById('inp-mat');
+      sel.innerHTML = data.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+    })
+    .catch(() => {});
+}
+loadMaterials();
+
+// Load Initial Physical Camera Settings
+function loadCameraSettings() {
+  fetch(`${API_BASE}/api/camera/status`)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.cam1) {
+        if (data.cam1.exposure) {
+          document.getElementById('exp-sl').value = data.cam1.exposure;
+          updateExp(data.cam1.exposure);
+        }
+        if (data.cam1.gain) {
+          document.getElementById('gain-sl').value = data.cam1.gain;
+          updateGain(data.cam1.gain);
+        }
+        if (data.cam1.slice_height) {
+          document.getElementById('sh-sel').value = data.cam1.slice_height;
+          document.getElementById('sh-v').innerHTML = `${data.cam1.slice_height}<span class="pu">px</span>`;
+        }
+        if (data.cam1.clahe !== undefined) {
+          document.getElementById('t-cl').checked = !!data.cam1.clahe;
+        }
+      }
+    })
+    .catch(() => {});
+}
+loadCameraSettings();
+
+// ═══════════════════════════════════════════════════════════
+// CAMERA OVERLAY CANVAS (CLEAN FLAT INDUSTRIAL HUD)
+// ═══════════════════════════════════════════════════════════
+const overlayCanvas = document.getElementById('cam-overlay-canvas');
+const octx = overlayCanvas ? overlayCanvas.getContext('2d') : null;
+let scanLineY = 0;
+
+function resizeOverlayCanvas() {
+  if (!overlayCanvas) return;
+  const rect = overlayCanvas.parentElement.getBoundingClientRect();
+  overlayCanvas.width = rect.width;
+  overlayCanvas.height = rect.height;
+}
+
+function renderCameraOverlay() {
+  if (!octx || !overlayCanvas) return;
+  const w = overlayCanvas.width, h = overlayCanvas.height;
+  octx.clearRect(0, 0, w, h);
+
+  // 1. Calibrated Millimetric Ruler at Top
+  octx.fillStyle = 'rgba(12, 16, 23, 0.9)';
+  octx.fillRect(0, 0, w, 22);
+  octx.strokeStyle = '#1E2638';
+  octx.lineWidth = 1;
+  octx.beginPath(); octx.moveTo(0, 22); octx.lineTo(w, 22); octx.stroke();
+
+  octx.font = '9px "IBM Plex Mono", monospace';
+  octx.fillStyle = '#94A3B8';
+  const steps = 8;
+  for (let i = 0; i <= steps; i++) {
+    const x = (i / steps) * w;
+    const mmVal = Math.round((i / steps) * fabricWidthMm);
+    octx.beginPath(); octx.moveTo(x, 0); octx.lineTo(x, i % 2 === 0 ? 12 : 7); octx.stroke();
+    if (i % 2 === 0) {
+      const txt = mmVal + 'mm';
+      const tw = octx.measureText(txt).width;
+      octx.fillText(txt, Math.min(Math.max(x - tw / 2, 4), w - tw - 4), 18);
+    }
+  }
+
+  // 2. Subtle Industrial Scan Line (No neon glow)
+  scanLineY = (scanLineY + 2.0) % h;
+  const grad = octx.createLinearGradient(0, scanLineY - 8, 0, scanLineY + 8);
+  grad.addColorStop(0, 'rgba(37, 99, 235, 0)');
+  grad.addColorStop(0.5, 'rgba(37, 99, 235, 0.22)');
+  grad.addColorStop(1, 'rgba(37, 99, 235, 0)');
+  octx.fillStyle = grad;
+  octx.fillRect(0, scanLineY - 8, w, 16);
+
+  octx.strokeStyle = '#2563EB';
+  octx.lineWidth = 1;
+  octx.beginPath(); octx.moveTo(0, scanLineY); octx.lineTo(w, scanLineY); octx.stroke();
+
+  // 3. Render Active Defect Bounding Boxes (ONLY when inspection is launched!)
+  if (!activeRollId) {
+    activeDefectBoxes = [];
+    return;
+  }
+  const now = Date.now();
+  activeDefectBoxes = activeDefectBoxes.filter(b => now - b.born < 2800);
+
+  activeDefectBoxes.forEach(b => {
+    const age = now - b.born;
+    const alpha = Math.max(0, 1 - age / 2800);
+    const parsed = b.parsed;
+    const bx = parsed.x * w;
+    const by = Math.max(24, parsed.y * h);
+    const bw = parsed.w * w;
+    const bh = parsed.h * h;
+
+    octx.save();
+    octx.globalAlpha = alpha;
+    octx.strokeStyle = b.color || '#3B82F6';
+    octx.lineWidth = 1.5;
+    octx.shadowBlur = 0; // Strictly NO glow
+
+    // Clean Corner brackets
+    const cLen = Math.min(12, bw / 3, bh / 3);
+    octx.beginPath();
+    // Top-Left
+    octx.moveTo(bx, by + cLen); octx.lineTo(bx, by); octx.lineTo(bx + cLen, by);
+    // Top-Right
+    octx.moveTo(bx + bw - cLen, by); octx.lineTo(bx + bw, by); octx.lineTo(bx + bw, by + cLen);
+    // Bottom-Right
+    octx.moveTo(bx + bw, by + bh - cLen); octx.lineTo(bx + bw, by + bh); octx.lineTo(bx + bw - cLen, by + bh);
+    // Bottom-Left
+    octx.moveTo(bx + cLen, by + bh); octx.lineTo(bx, by + bh); octx.lineTo(bx, by + bh - cLen);
+    octx.stroke();
+
+    // Box subtle tint fill
+    octx.fillStyle = '#2563EB';
+    octx.globalAlpha = alpha * 0.08;
+    octx.fillRect(bx, by, bw, bh);
+
+    // Flat Dark Slate Label Tag
+    octx.globalAlpha = alpha;
+    const labelTxt = `${b.type.toUpperCase()} ${(b.conf * 100).toFixed(0)}%`;
+    octx.font = 'bold 9px "IBM Plex Mono", monospace';
+    const ltw = octx.measureText(labelTxt).width;
+    octx.fillStyle = '#0F172A';
+    octx.fillRect(bx, Math.max(0, by - 16), ltw + 8, 16);
+    octx.strokeStyle = '#2563EB';
+    octx.strokeRect(bx, Math.max(0, by - 16), ltw + 8, 16);
+    octx.fillStyle = '#FFFFFF';
+    octx.fillText(labelTxt, bx + 4, Math.max(11, by - 4));
+    octx.restore();
+  });
+
+  requestAnimationFrame(renderCameraOverlay);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2D ROLL DEFECT MAP (LENGTH VS WIDTH INTERACTIVE)
+// ═══════════════════════════════════════════════════════════
+const defectCanvas = document.getElementById('defect-canvas');
+const ctx = defectCanvas ? defectCanvas.getContext('2d') : null;
+const mapTooltip = document.getElementById('map-tooltip');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+function resizeDefectCanvas() {
+  if (!defectCanvas) return;
+  const rect = defectCanvas.parentElement.getBoundingClientRect();
+  defectCanvas.width = rect.width;
+  defectCanvas.height = rect.height;
+  renderDefectMap();
+}
+
+const resizeObs = new ResizeObserver(() => {
+  resizeDefectCanvas();
+  resizeOverlayCanvas();
+});
+if (canvasWrap) resizeObs.observe(canvasWrap);
+if (overlayCanvas && overlayCanvas.parentElement) resizeObs.observe(overlayCanvas.parentElement);
+
+function renderDefectMap() {
+  if (!ctx || !defectCanvas) return;
+  const w = defectCanvas.width, h = defectCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Background Grid Lines (Distance marks)
+  ctx.strokeStyle = '#172033';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += w / 4) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  // Center fabric line
+  ctx.strokeStyle = '#1E2638';
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Active roll progress area & sweep line
+  const curX = Math.min((meters / rollLength) * w, w);
+  ctx.fillStyle = 'rgba(37, 99, 235, 0.12)';
+  ctx.fillRect(0, 0, curX, h);
+
+  ctx.strokeStyle = '#2563EB';
+  ctx.lineWidth = 1.5;
+  ctx.shadowBlur = 0; // ZERO GLOW!
+  ctx.beginPath(); ctx.moveTo(curX, 0); ctx.lineTo(curX, h); ctx.stroke();
+
+  // Defect Pins plotted at actual length & lateral width
+  defects.forEach(d => {
+    const dist = parseFloat(d.distM) || 0;
+    const px = Math.min((dist / rollLength) * w, w - 4);
+    const parsed = parseBbox(d.bbox);
+    const py = Math.min(Math.max(parsed.centerX * h, 6), h - 6);
+
+    ctx.fillStyle = d.color || '#60A5FA';
+    ctx.shadowBlur = 0; // ZERO GLOW!
+    ctx.beginPath();
+    ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Tooltip on Hovering 2D Roll Map
+if (canvasWrap) {
+  canvasWrap.addEventListener('mousemove', (e) => {
+    if (!defectCanvas || !mapTooltip) return;
+    const rect = defectCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const w = defectCanvas.width, h = defectCanvas.height;
+
+    let hoveredDefect = null;
+    for (let d of defects) {
+      const dist = parseFloat(d.distM) || 0;
+      const px = Math.min((dist / rollLength) * w, w - 4);
+      const parsed = parseBbox(d.bbox);
+      const py = Math.min(Math.max(parsed.centerX * h, 6), h - 6);
+      if (Math.hypot(mx - px, my - py) < 8) {
+        hoveredDefect = d;
+        break;
+      }
+    }
+
+    if (hoveredDefect) {
+      const lateralMm = Math.round(parseBbox(hoveredDefect.bbox).centerX * fabricWidthMm);
+      mapTooltip.style.display = 'block';
+      mapTooltip.style.left = mx + 'px';
+      mapTooltip.style.top = my + 'px';
+      mapTooltip.innerHTML = `<b>#${hoveredDefect.id} ${hoveredDefect.type.toUpperCase()}</b><br>Dist: ${hoveredDefect.distM}m · Lateral: ${lateralMm}mm · ${(hoveredDefect.conf*100).toFixed(0)}%`;
+    } else {
+      mapTooltip.style.display = 'none';
+    }
+  });
+
+  canvasWrap.addEventListener('mouseleave', () => {
+    if (mapTooltip) mapTooltip.style.display = 'none';
+  });
+
+  canvasWrap.addEventListener('click', (e) => {
+    if (!defectCanvas) return;
+    const rect = defectCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const w = defectCanvas.width, h = defectCanvas.height;
+
+    for (let d of defects) {
+      const dist = parseFloat(d.distM) || 0;
+      const px = Math.min((dist / rollLength) * w, w - 4);
+      const parsed = parseBbox(d.bbox);
+      const py = Math.min(Math.max(parsed.centerX * h, 6), h - 6);
+      if (Math.hypot(mx - px, my - py) < 10) {
+        highlightDefectRow(d.id);
+        break;
+      }
+    }
+  });
+}
+
+function highlightDefectRow(defectId) {
+  const rows = document.querySelectorAll('#dt-body tr');
+  rows.forEach(r => {
+    if (r.dataset.id == defectId) {
+      r.classList.add('selected');
+      r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      r.classList.remove('selected');
+    }
+  });
+}
+
+function updateDefectMapWidth(val) {
+  fabricWidthMm = parseFloat(val);
+  document.getElementById('map-w-lbl').textContent = val + 'mm';
+  renderDefectMap();
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEBSOCKET TELEMETRY & HARDWARE COMMUNICATION
+// ═══════════════════════════════════════════════════════════
+function connectWS() {
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+  try { ws = new WebSocket(WS_URL); } catch(e) { return; }
+
+  ws.onopen = () => {
+    wsConnected = true;
+    setWsUI(true);
+    addAlarm('WebSocket telemetry bridge connected', 'i');
+    pushSettings();
+    if (wsReconnectTimer) { clearInterval(wsReconnectTimer); wsReconnectTimer = null; }
+  };
+
+  ws.onclose = () => {
+    wsConnected = false;
+    setWsUI(false);
+    if (!wsReconnectTimer) wsReconnectTimer = setInterval(connectWS, 2500);
+  };
+
+  ws.onerror = () => { ws.close(); };
+
+  ws.onmessage = (evt) => {
+    try {
+      const data = JSON.parse(evt.data);
+      if (data.type === 'camera_status') {
+        applyCameraModeUI(data.mode, data);
+        return;
+      }
+
+      if (data.type === 'heartbeat') {
+        const cpu = data.cpu || 0, ram = data.ram || 0, disk = data.disk || 0;
+        const sliceFps = data.slice_fps || 0, lineFreq = data.line_freq_khz || 0;
+        const opticalFps = data.optical_fps || 0;
+        const camMode = data.cam_mode || '';
+
+        setM('cpu-v','cpu-b', cpu.toFixed(0)+'%', cpu, 'fb');
+        setM('ram-v','ram-b', ram.toFixed(0)+'%', ram, 'fb');
+        setM('disk-v','disk-b', disk.toFixed(0)+'%', disk, 'fg');
+
+        if (camMode === 'oak_d' || camMode === 'oak_d_lite' || camMode === 'oakd') {
+          if (document.getElementById('scan-v')) {
+            setM('scan-v', 'scan-b', `${opticalFps.toFixed(0)} FPS (2D)`, Math.min(100, (opticalFps / 30) * 100), 'fg');
+          }
+          if (document.getElementById('scan-rate-badge')) {
+            document.getElementById('scan-rate-badge').textContent = `OAK-D 2D: ${opticalFps.toFixed(0)} FPS`;
+          }
+          if (document.getElementById('scan-khz')) {
+            document.getElementById('scan-khz').textContent = `${opticalFps.toFixed(0)} FPS 2D`;
+          }
+        } else if (camMode === '0' || camMode === 'standard' || camMode === 'webcam') {
+          if (document.getElementById('scan-v')) {
+            setM('scan-v', 'scan-b', `${opticalFps.toFixed(0)} FPS (USB)`, Math.min(100, (opticalFps / 30) * 100), 'fg');
+          }
+          if (document.getElementById('scan-rate-badge')) {
+            document.getElementById('scan-rate-badge').textContent = `USB 2D: ${opticalFps.toFixed(0)} FPS`;
+          }
+          if (document.getElementById('scan-khz')) {
+            document.getElementById('scan-khz').textContent = `${opticalFps.toFixed(0)} FPS 2D`;
+          }
+        } else {
+          if (document.getElementById('scan-v')) {
+            setM('scan-v', 'scan-b', sliceFps > 0 ? `${sliceFps.toFixed(0)} sl/s (${lineFreq} kHz)` : 'STANDBY', Math.min(100, (sliceFps / 80) * 100), 'fg');
+          }
+          if (document.getElementById('scan-rate-badge')) {
+            document.getElementById('scan-rate-badge').textContent = sliceFps > 0 ? `SCAN: ${sliceFps.toFixed(0)} SL/S (${lineFreq} kHz)` : 'SCAN: STANDBY';
+          }
+          if (document.getElementById('scan-khz')) {
+            document.getElementById('scan-khz').textContent = lineFreq > 0 ? `${lineFreq} kHz` : '27.5 kHz';
+          }
+        }
+
+        document.getElementById('sb-cpu').textContent = cpu.toFixed(0)+'%';
+        document.getElementById('sb-ram').textContent = ram.toFixed(0)+'%';
+        document.getElementById('r-cpu').textContent = '0x'+Math.round(cpu).toString(16).toUpperCase().padStart(4,'0');
+        return;
+      }
+
+      if (data.type === 'frame_metrics') {
+        const fps = data.fps || 0;
+        document.getElementById('fps-display').textContent = fps.toFixed(1);
+        document.getElementById('ai-fps').textContent = fps.toFixed(1)+' fps';
+        setM('aifps-v','aifps-b', fps.toFixed(1)+' fps', fps/30*100, 'fg');
+        return;
+      }
+
+      if (data.type === 'inspection_state') {
+        if (!data.active) {
+          activeRollId = null;
+          activeRollNumber = null;
+          activeDefectBoxes = [];
+          const kpiS = document.getElementById('kpi-s');
+          if (kpiS) { kpiS.textContent = 'READY'; kpiS.className = 'kv'; }
+          const kpiSg = document.getElementById('kpi-sg');
+          if (kpiSg) kpiSg.textContent = 'Standby';
+        } else if (data.active && data.roll_id) {
+          activeRollId = data.roll_id;
+          activeRollNumber = data.roll_number;
+        }
+        return;
+      }
+
+      if (data.type === 'defect') {
+        if (!activeRollId) return; // Strict guard: only process defects when inspection is launched!
+        const cfg = DEFECT_CONFIG[data.defect_type] || {points:1,color:'#F59E0B',priority:'MEDIUM'};
+        const parsed = parseBbox(data.bbox);
+        const lateralMm = Math.round(parsed.centerX * fabricWidthMm);
+        const d = {
+          id: defectCount + 1,
+          type: data.defect_type,
+          conf: data.confidence,
+          cam: data.camera || 1,
+          location: `X:${lateralMm}mm`,
+          sizeMm: data.size_mm,
+          points: cfg.points,
+          priority: cfg.priority,
+          color: cfg.color,
+          distM: data.distance_meters !== undefined ? data.distance_meters.toFixed(2) : meters.toFixed(2),
+          time: new Date().toTimeString().slice(0, 8),
+          bbox: data.bbox,
+          parsed: parsed
+        };
+        addDefect(d);
+
+        // Push to active overlay canvas
+        activeDefectBoxes.push({
+          born: Date.now(),
+          type: d.type,
+          conf: d.conf,
+          color: cfg.color,
+          parsed: parsed
+        });
+
+        // Trigger DI3 alarm pulse
+        pulseDigitalIO('di3', 'bit br2', 1500);
+
+        if (document.getElementById('t-snd').checked && cfg.priority === 'CRITICAL') {
+          beep();
+          pulseDigitalIO('do3', 'bit bo2', 500);
+        }
+      }
+    } catch(e) {}
+  };
+}
+connectWS();
+
+function pulseDigitalIO(id, cls, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const oldCls = el.className;
+  el.className = cls;
+  setTimeout(() => { el.className = oldCls; }, duration);
+}
+
+function setWsUI(connected) {
+  const pill = document.getElementById('ws-pill');
+  if (connected) {
+    pill.className = 'pill on'; pill.textContent = 'ONLINE';
+    setNode('nd-ws','ws-dot','ws-status','run','CONNECTED','var(--blue-light)');
+    document.getElementById('ws-latency').textContent = '1 ms';
+  } else {
+    pill.className = 'pill off'; pill.textContent = 'OFFLINE';
+    setNode('nd-ws','ws-dot','ws-status','flt','OFFLINE','var(--danger)');
+    document.getElementById('ws-latency').textContent = '– ms';
+  }
+}
+
+function setNode(ndId, dotId, statusId, cls, label, color) {
+  const nd = document.getElementById(ndId);
+  if (nd) nd.className = 'nd ' + cls;
+  const dot = document.getElementById(dotId);
+  if (dot) {
+    dot.className = 'dot';
+    if(cls==='run') dot.className='dot dg';
+    else if(cls==='war') dot.className='dot do';
+    else if(cls==='flt') dot.className='dot dr';
+    else dot.className='dot dgr';
+  }
+  const st = document.getElementById(statusId);
+  if (st) { st.textContent = label; st.style.color = color; }
+}
+
+function updateParam(id,val,unit){
+  document.getElementById(id).innerHTML=val+'<span class="pu">'+unit+'</span>';
+}
+function pbar(id,v){
+  const e=document.getElementById(id);
+  if(e) e.style.width=Math.min(v,100)+'%';
+}
+function setM(vid, bid, txt, val, cls) {
+  const v = document.getElementById(vid); if (v) v.textContent = txt;
+  const b = document.getElementById(bid); if (b) { b.style.width = Math.min(Math.max(val,0),100)+'%'; b.className = 'mf '+cls; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CAMERA TELEMETRY & HARDWARE HEALTH MONITOR
+// ═══════════════════════════════════════════════════════════
+function applyCameraTelemetryUI(telemetry) {
+  const badge = document.getElementById('cam-active-badge');
+  const cfoot = document.getElementById('cfoot-name');
+  const desc = document.getElementById('cam-driver-desc');
+  const cam1FpsNode = document.getElementById('cam1-fps');
+  const gigePill = document.getElementById('gige-pill');
+  const statusPill = document.getElementById('cam-status-pill');
+
+  const cam1Status = telemetry && telemetry.cam1 ? telemetry.cam1 : {};
+  const isOnline = cam1Status.online !== false;
+
+  if (statusPill) {
+    statusPill.textContent = isOnline ? 'ONLINE' : 'STANDBY';
+    statusPill.style.color = isOnline ? 'var(--blue-light)' : 'var(--danger)';
+  }
+
+  if (badge) { badge.textContent = 'GIGE LINE-SCAN'; badge.className = 'badge bb'; }
+  if (cfoot) cfoot.textContent = 'CAM-1 · CHINA-VISION GELM44M-T2 (GIGE LINE-SCAN)';
+  if (desc) desc.textContent = 'GigE Vision UDP GVSP (1000+ Hz Line Rate)';
+  if (cam1FpsNode) cam1FpsNode.textContent = 'GELM44M-T2';
+  if (gigePill) { gigePill.textContent = isOnline ? 'GIGE ONLINE' : 'GIGE STANDBY'; gigePill.className = isOnline ? 'pill on' : 'pill off'; }
+}
+
+// Fetch active camera telemetry on page startup
+fetch(`${API_BASE}/api/camera/status`)
+  .then(r => r.json())
+  .then(tel => { applyCameraTelemetryUI(tel); })
+  .catch(() => {});
+
+// Optical Camera Controls
+function updateExp(val) {
+  const us = parseFloat(val);
+  const ms = (us / 1000).toFixed(2);
+  document.getElementById('exp-v').innerHTML = `${us.toFixed(0)}<span class="pu">µs (${ms}ms)</span>`;
+}
+
+function setExpPreset(val) {
+  document.getElementById('exp-sl').value = val;
+  updateExp(val);
+  pushCameraHardwareSettings();
+}
+
+function updateGain(val) {
+  const g = parseFloat(val);
+  document.getElementById('gain-v').innerHTML = `${g.toFixed(1)}<span class="pu">x</span>`;
+}
+
+function pushCameraHardwareSettings() {
+  const expUs = parseFloat(document.getElementById('exp-sl').value);
+  const gainVal = parseFloat(document.getElementById('gain-sl').value);
+  const sliceH = parseInt(document.getElementById('sh-sel').value);
+  const claheOn = document.getElementById('t-cl').checked;
+  const motionGated = document.getElementById('t-mg') ? document.getElementById('t-mg').checked : false;
+
+  document.getElementById('sh-v').innerHTML = `${sliceH}<span class="pu">px</span>`;
+
+  // 1. Post to REST API
+  fetch(`${API_BASE}/api/camera/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      exposure: expUs,
+      gain: gainVal,
+      slice_height: sliceH,
+      enhance: claheOn,
+      motion_gated: motionGated
+    })
+  }).then(r => r.json()).then(data => {
+    addAlarm(`Camera hardware synced: Exp=${expUs}µs, Gain=${gainVal}x, MotionGate=${motionGated}`, 'i');
+  }).catch(() => {});
+
+  // 2. Broadcast over WebSocket
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      type: 'settings',
+      cameraControls: {
+        cam1: {
+          exposure: expUs,
+          gain: gainVal,
+          slice_height: sliceH,
+          enhance: claheOn,
+          motion_gated: motionGated
+        }
+      }
+    }));
+  }
+}
+
+function pushSettings() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  const speed = parseFloat(document.getElementById('spd-sl').value);
+  const conf = parseFloat(document.getElementById('conf-sl').value);
+  const iou = parseFloat(document.getElementById('iou-sl').value);
+  const width = parseFloat(document.getElementById('wid-sl').value);
+  fabricSpeed = speed;
+  document.getElementById('nd-speed').textContent = speed + ' m/min';
+  document.getElementById('roll-speed').textContent = speed + ' m/min';
+  
+  ws.send(JSON.stringify({
+    type: 'settings',
+    confidenceThreshold: conf,
+    iouThreshold: iou,
+    fabricSpeed: speed,
+    fabricWidth: width
+  }));
+  document.getElementById('r-spd').textContent = '0x' + Math.round(speed*10).toString(16).toUpperCase().padStart(4,'0');
+}
+
+function saveParams() {
+  pushSettings();
+  addAlarm('Machine parameters synced with backend', 'i');
+}
+
+// Roll Session Operations
+function startRoll() {
+  if (activeRollId) return;
+  let rollNum = document.getElementById('inp-roll').value.trim();
+  if (!rollNum) {
+    const now = new Date();
+    rollNum = `ROLL-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+  }
+  const opName = document.getElementById('inp-op').value.trim() || 'operator';
+  const matName = document.getElementById('inp-mat').value;
+
+  fetch(`${API_BASE}/api/rolls/start`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({roll_number: rollNum, material_name: matName, operator_name: opName})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      activeRollId = data.roll_id;
+      activeRollNumber = data.roll_number;
+      meters = 0; defectCount = 0; totalPoints = 0; elapsedSecs = 0;
+      defects = []; defectWin = []; trendData = Array(60).fill(0);
+      activeDefectBoxes = [];
+
+      document.getElementById('sb-roll').textContent = activeRollNumber;
+      document.getElementById('sb-op').textContent = opName;
+      document.getElementById('sb-mat').textContent = matName;
+      document.getElementById('roll-badge').textContent = activeRollNumber;
+      document.getElementById('mat-badge').textContent = matName;
+      document.getElementById('roll-start').textContent = new Date().toTimeString().slice(0,8);
+      document.getElementById('kpi-s').textContent = 'PASS';
+      document.getElementById('kpi-s').className = 'kv cg';
+      document.getElementById('kpi-sg').textContent = '✓ Inspection Active';
+      document.getElementById('kpi-sg').className = 'kt td';
+      document.getElementById('btn-start').disabled = true;
+      document.getElementById('btn-stop').disabled = false;
+      document.getElementById('roll-form-card').style.display = 'none';
+
+      document.getElementById('loom-status').textContent = 'RUNNING';
+      document.getElementById('loom-status').style.color = 'var(--blue-light)';
+      document.getElementById('loom-dot').className = 'dot dg';
+
+      document.getElementById('di0').className = 'bit bg2';
+      document.getElementById('di1').className = 'bit bg2';
+      document.getElementById('do0').className = 'bit bg2';
+      document.getElementById('do2').className = 'bit bb2';
+      document.getElementById('r-sts').textContent = '0x0001';
+
+      startTicker();
+      pushSettings();
+      renderDefectMap();
+      addAlarm(`Roll STARTED: ${activeRollNumber} (${matName})`, 'i');
+    }
+  })
+  .catch(err => {
+    addAlarm('Failed to start roll session with backend', 'c');
+  });
+}
+
+function stopRoll() {
+  if (!activeRollId) return;
+  const totalPts = totalPoints;
+  const grade = totalPts < 10 ? 'FIRST QUALITY' : totalPts < 25 ? 'SECOND QUALITY' : totalPts < 40 ? 'THIRD QUALITY' : 'REJECT';
+  const ptsPer100m = parseFloat(document.getElementById('kpi-p').textContent) || 0;
+
+  fetch(`${API_BASE}/api/rolls/stop`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      length_meters: parseFloat(meters.toFixed(2)),
+      total_points: totalPts,
+      points_per_100m: ptsPer100m,
+      grade: grade
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    clearInterval(tickInterval); tickInterval = null;
+    const finalRollId = data.finalized_roll_id || activeRollId;
+    addAlarm(`Roll STOPPED & PERSISTED: ${activeRollNumber} · Grade: ${grade}`, 'w');
+    
+    activeRollId = null; activeRollNumber = null; activeDefectBoxes = [];
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-stop').disabled = true;
+    document.getElementById('roll-form-card').style.display = 'block';
+    document.getElementById('kpi-sg').textContent = 'Roll Saved in DB';
+    document.getElementById('r-sts').textContent = '0x0000';
+    document.getElementById('loom-status').textContent = 'READY';
+    document.getElementById('loom-status').style.color = 'var(--grey-400)';
+    document.getElementById('loom-dot').className = 'dot do';
+
+    document.getElementById('di0').className = 'bit';
+    document.getElementById('di1').className = 'bit';
+    document.getElementById('do0').className = 'bit';
+    document.getElementById('do2').className = 'bit';
+
+    if (confirm(`Roll saved successfully to SQLite Database!\n\nRoll #: ${finalRollId}\nGrade: ${grade}\nMeters: ${meters.toFixed(2)}m\n\nDownload Official PDF Inspection Certificate?`)) {
+      window.open(`${API_BASE}/api/rolls/report/${finalRollId}/pdf`, '_blank');
+    }
+  })
+  .catch(() => {
+    clearInterval(tickInterval); tickInterval = null;
+    activeRollId = null; activeRollNumber = null;
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-stop').disabled = true;
+    document.getElementById('roll-form-card').style.display = 'block';
+  });
+}
+
+function eStop() {
+  stopRoll();
+  addAlarm('⚠ EMERGENCY STOP TRIGGERED', 'c');
+}
+
+function startTicker() {
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(() => {
+    if (!activeRollId) return;
+    elapsedSecs++;
+    meters = parseFloat((meters + fabricSpeed/60).toFixed(2));
+
+    document.getElementById('kpi-m').textContent = meters.toFixed(2);
+    const pct = Math.min(meters/rollLength*100, 100);
+    document.getElementById('rp-fill').style.width = pct + '%';
+    document.getElementById('rp-txt').textContent = `${meters.toFixed(2)}m / ~${rollLength}m (${pct.toFixed(1)}%)`;
+
+    const h=String(Math.floor(elapsedSecs/3600)).padStart(2,'0');
+    const m=String(Math.floor(elapsedSecs%3600/60)).padStart(2,'0');
+    const s=String(elapsedSecs%60).padStart(2,'0');
+    document.getElementById('roll-elapsed').textContent=`${h}:${m}:${s}`;
+    
+    if (fabricSpeed > 0) {
+      const rem = rollLength - meters;
+      if (rem > 0) {
+        const e=rem/fabricSpeed*60;
+        document.getElementById('roll-eta').textContent=String(Math.floor(e/3600)).padStart(2,'0')+':'+String(Math.floor(e%3600/60)).padStart(2,'0')+':'+String(Math.floor(e%60)).padStart(2,'0');
+      } else document.getElementById('roll-eta').textContent='Complete';
+    }
+    document.getElementById('r-mtr').textContent = '0x'+Math.round(meters*100).toString(16).toUpperCase().padStart(8,'0');
+    renderDefectMap();
+  }, 1000);
+}
+
+function addDefect(d) {
+  defectCount++; totalPoints += d.points;
+  defects.unshift(d); if (defects.length > 200) defects.pop();
+  defectWin.push(Date.now());
+  defectWin = defectWin.filter(t => Date.now()-t < 60000);
+  const dlm = defectWin.length;
+
+  document.getElementById('kpi-d').textContent = defectCount;
+  document.getElementById('kpi-dt').textContent = `↑ ${dlm} last 60s`;
+  document.getElementById('defect-badge').textContent = defectCount + ' DETECTED';
+
+  const pts100 = meters > 0 ? (totalPoints / (meters * 0.18)).toFixed(1) : '0.0';
+  document.getElementById('kpi-p').textContent = pts100;
+  const grade = totalPoints < 10 ? 'FIRST' : totalPoints < 25 ? 'SECOND' : totalPoints < 40 ? 'THIRD' : 'REJECT';
+  document.getElementById('kpi-gr').textContent = 'Grade: ' + grade;
+
+  if (grade === 'REJECT') {
+    document.getElementById('kpi-s').textContent = 'REJECT';
+    document.getElementById('kpi-s').className = 'kv cr';
+  } else if (grade === 'SECOND' || grade === 'THIRD') {
+    document.getElementById('kpi-s').textContent = 'WARN';
+    document.getElementById('kpi-s').className = 'kv co';
+  }
+
+  document.getElementById('r-def').textContent = '0x'+defectCount.toString(16).toUpperCase().padStart(4,'0');
+  renderTable();
+  renderDefectMap();
+  updateSparkline();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('dt-body');
+  const filterVal = document.getElementById('filter-type').value;
+  let filtered = defects;
+  if (filterVal !== 'ALL') {
+    filtered = defects.filter(d => d.priority === filterVal);
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:20px">No matching defects in current roll</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.slice(0, 50).map(d => `
+    <tr data-id="${d.id}" onclick="highlightDefectRow(${d.id})">
+      <td style="font-weight:700;color:var(--text-muted)">#${d.id}</td>
+      <td style="font-weight:700;color:${d.color}">${d.type}</td>
+      <td>${(d.conf * 100).toFixed(0)}%</td>
+      <td>CAM-${d.cam}</td>
+      <td>${d.location}</td>
+      <td>${d.sizeMm || '–'} mm</td>
+      <td style="font-weight:700;color:var(--blue-light)">+${d.points}</td>
+      <td>${d.distM} m</td>
+      <td style="font-size:10px;color:var(--text-dim)">${d.time}</td>
+      <td><span class="badge ${d.priority==='CRITICAL'?'br':d.priority==='HIGH'?'bo':'bg'}">${d.priority}</span></td>
+    </tr>
+  `).join('');
+}
+
+function updateSparkline() {
+  trendData.shift();
+  trendData.push(defectWin.length);
+  const max = Math.max(...trendData, 4);
+  const w = 600, h = 60;
+  const pts = trendData.map((v, i) => `${(i / 59 * w).toFixed(1)},${(h - (v / max) * (h - 8)).toFixed(1)}`);
+  document.getElementById('sl').setAttribute('d', 'M' + pts.join(' L'));
+  document.getElementById('sf').setAttribute('d', `M0,${h} L` + pts.join(' L') + ` L${w},${h} Z`);
+}
+
+function addAlarm(msg, type) {
+  const list = document.getElementById('alm-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'almi ' + type;
+  div.innerHTML = `<span>${msg}</span><span style="opacity:0.6">${new Date().toTimeString().slice(0, 8)}</span>`;
+  list.prepend(div);
+  while (list.children.length > 25) list.removeChild(list.lastChild);
+  const badge = document.getElementById('alm-badge');
+  if (badge) badge.textContent = list.children.length + ' LOGGED';
+}
+
+function ackAlarms() {
+  const list = document.getElementById('alm-list');
+  if (list) list.innerHTML = '';
+  const badge = document.getElementById('alm-badge');
+  if (badge) badge.textContent = '0 ACTIVE';
+}
+
+function beep() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ac.createOscillator(), gain = ac.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(880, ac.currentTime);
+    gain.gain.setValueAtTime(0.08, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.15);
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.start(); osc.stop(ac.currentTime + 0.15);
+  } catch(e) {}
+}
+
+function clearDefects() {
+  defects = [];
+  activeDefectBoxes = [];
+  defectCount = 0;
+  totalPoints = 0;
+  document.getElementById('kpi-d').textContent = '0';
+  document.getElementById('kpi-p').textContent = '0.0';
+  document.getElementById('defect-badge').textContent = '0 DETECTED';
+  renderTable();
+  renderDefectMap();
+}
+
+function exportRpt() {
+  const blob = new Blob([JSON.stringify({
+    roll: activeRollNumber || 'IDLE',
+    meters: meters.toFixed(2),
+    defects: defectCount,
+    totalPoints,
+    generated: new Date().toISOString(),
+    defectLog: defects
+  }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `textileguard-report-${Date.now()}.json`;
+  a.click();
+}
+
+// Saved Rolls History Modal
+function openSavedRollsModal() {
+  const modal = document.getElementById('rolls-modal');
+  modal.classList.add('active');
+  const tbody = document.getElementById('saved-rolls-body');
+  tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted)">Fetching saved rolls from SQLite database…</td></tr>';
+
+  fetch(`${API_BASE}/api/rolls`)
+    .then(r => r.json())
+    .then(rolls => {
+      if (!rolls || !rolls.length) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted)">No saved inspection rolls found in database.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rolls.map(r => `
+        <tr>
+          <td style="font-weight:700;color:var(--text-muted)">#${r.id}</td>
+          <td style="font-weight:700;color:var(--blue-light)">${r.roll_number}</td>
+          <td>${r.material_name}</td>
+          <td>${r.operator_name}</td>
+          <td style="font-weight:600">${r.length_meters ? r.length_meters.toFixed(2)+' m' : '–'}</td>
+          <td style="font-weight:600">${r.points_per_100m !== undefined ? r.points_per_100m : '–'}</td>
+          <td><span class="badge ${r.grade && r.grade.includes('REJECT')?'br':r.grade && r.grade.includes('SECOND')?'bo':'bg'}">${r.grade || 'FIRST'}</span></td>
+          <td style="font-size:10px;color:var(--text-muted)">${r.started_at || '–'}</td>
+          <td style="font-size:10px;color:var(--text-muted)">${r.ended_at || 'In Progress'}</td>
+          <td>
+            <a class="btn btng" style="padding:2px 8px;font-size:9px" href="${API_BASE}/api/rolls/report/${r.id}/pdf" target="_blank">📄 PDF Certificate</a>
+          </td>
+        </tr>
+      `).join('');
+    })
+    .catch(() => {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--danger)">Failed to load rolls from database.</td></tr>';
+    });
+}
+
+function closeSavedRollsModal() {
+  document.getElementById('rolls-modal').classList.remove('active');
+}
+
+// Start Animation & Render Loops
+requestAnimationFrame(renderCameraOverlay);
+updateSparkline();
+addAlarm('Kizen TextileGuard Pro Dashboard initialized (Industrial Dark Theme)', 'i');
+</script>
+</body>
+</html>

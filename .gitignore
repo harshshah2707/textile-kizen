@@ -33,10 +33,14 @@ static/uploads/*
 outputs/
 
 # Scratch large directories
-scratch/lusitano_raw/
-scratch/predictions/
-scratch/samples/
-scratch/thread_test/
+scratch/
+
+# Temporary frame captures and artifacts
+*.jpg
+*.jpeg
+*.png
+*.part
+*.log
 
 
 
