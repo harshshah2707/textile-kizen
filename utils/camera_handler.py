@@ -811,8 +811,8 @@ class GigEVisionLineScanHandler:
 
         self.width = 4096
         self.height = slice_height
-        self.exposure_ms = 1.8  # 1800us default: ample photons for textile scan
-        self.gain_val = 10.0    # 10.0x default: rich signal above noise floor
+        self.exposure_ms = 0.5  # 500us default: optimal photons without highlight burnout
+        self.gain_val = 2.0    # 2.0x default: clean signal above noise floor without saturation
         self.clahe = cv2.createCLAHE(clipLimit=1.2, tileGridSize=(8, 8))
         self.enhance = True     # Subtle CLAHE enhancement for yarn weave
 
@@ -869,23 +869,23 @@ class GigEVisionLineScanHandler:
             self.client.write_reg(0x10000004, self.slice_height)
             self.height = self.slice_height
 
-            # Shutter: Set default exposure (2200.0 us provides balanced signal & clean contrast)
+            # Shutter: Set default exposure (500.0 us provides balanced signal & clean contrast)
             try:
-                exp_target = float(os.getenv('CAMERA_EXPOSURE_US', '2200.0'))
-                if exp_target < 100.0:
-                    exp_target = 2200.0
+                exp_target = float(os.getenv('CAMERA_EXPOSURE_US', '500.0'))
+                if exp_target < 50.0:
+                    exp_target = 500.0
                 self.client.write_float(0x10000160, exp_target)
                 self.exposure_ms = self.client.read_float(0x10000160) / 1000.0
             except Exception:
-                self.exposure_ms = 2.2
+                self.exposure_ms = 0.5
 
-            # Gain: Default clean gain (14.0x)
+            # Gain: Default clean gain (2.0x)
             try:
-                gain_target = float(os.getenv('CAMERA_GAIN', '14.0'))
+                gain_target = float(os.getenv('CAMERA_GAIN', '2.0'))
                 self.client.write_float(0x10000138, gain_target)
                 self.gain_val = self.client.read_float(0x10000138)
             except Exception:
-                self.gain_val = 14.0
+                self.gain_val = 2.0
 
             # TDI mode: TDI_4 (3) for 4-stage line accumulation (4x photon sensitivity)
             try:
@@ -1023,9 +1023,10 @@ class GigEVisionLineScanHandler:
         # 2. Balanced contrast curve: comfortable dynamic range without blowing highlights
         p1 = float(np.percentile(deflickered, 1))
         p99 = float(np.percentile(deflickered, 99))
-        if p99 > p1 + 10.0:
-            scale = 210.0 / (p99 - p1)
-            stretched = np.clip((deflickered.astype(np.float32) - p1) * scale + 8.0, 0, 235).astype(np.uint8)
+        span = p99 - p1
+        if span > 15.0 and p99 < 235.0:
+            scale = min(2.5, 215.0 / span)
+            stretched = np.clip((deflickered.astype(np.float32) - p1) * scale + 6.0, 0, 235).astype(np.uint8)
         else:
             stretched = deflickered
 

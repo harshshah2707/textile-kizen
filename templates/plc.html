@@ -536,13 +536,13 @@
       <div class="param">
         <div class="ph">
           <div class="pn">Exposure Time</div>
-          <div class="pv" id="exp-v">1800<span class="pu">µs (1.8ms)</span></div>
+          <div class="pv" id="exp-v">500<span class="pu">µs (0.50ms)</span></div>
         </div>
-        <input type="range" class="plcslider" id="exp-sl" min="100" max="4000" step="50" value="1800" oninput="updateExp(this.value)">
+        <input type="range" class="plcslider" id="exp-sl" min="50" max="3000" step="25" value="500" oninput="updateExp(this.value)">
         <div class="fl g2 mt2">
-          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(1000)">1000µs Fast</button>
-          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(1800)">1800µs Std</button>
-          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(2200)">2200µs Textile</button>
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(200)">200µs Fast</button>
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(500)">500µs Std</button>
+          <button class="btn btng" style="flex:1;padding:4px;font-size:9px" onclick="setExpPreset(1000)">1000µs Textile</button>
         </div>
       </div>
 
@@ -550,9 +550,9 @@
       <div class="param">
         <div class="ph">
           <div class="pn">Hardware Gain</div>
-          <div class="pv" id="gain-v">10.0<span class="pu">x</span></div>
+          <div class="pv" id="gain-v">2.0<span class="pu">x</span></div>
         </div>
-        <input type="range" class="plcslider" id="gain-sl" min="1.0" max="24.0" step="0.5" value="10.0" oninput="updateGain(this.value)">
+        <input type="range" class="plcslider" id="gain-sl" min="1.0" max="16.0" step="0.5" value="2.0" oninput="updateGain(this.value)">
       </div>
 
       <!-- Slice Height -->
@@ -581,9 +581,9 @@
         <div class="mtr mt2"><div class="mf fb" id="spd-b" style="width:40%"></div></div>
       </div>
       <div class="param">
-        <div class="ph"><div class="pn">AI Confidence Cutoff</div><div class="pv" id="conf-v">0.45<span class="pu"></span></div></div>
-        <input type="range" class="plcslider" id="conf-sl" min="0.10" max="0.95" step="0.05" value="0.45" oninput="updateParam('conf-v',parseFloat(this.value).toFixed(2),'');pbar('conf-b',this.value/0.95*100);pushSettings()">
-        <div class="mtr mt2"><div class="mf fb" id="conf-b" style="width:47%"></div></div>
+        <div class="ph"><div class="pn">AI Confidence Cutoff</div><div class="pv" id="conf-v">0.28<span class="pu"></span></div></div>
+        <input type="range" class="plcslider" id="conf-sl" min="0.10" max="0.95" step="0.02" value="0.28" oninput="updateParam('conf-v',parseFloat(this.value).toFixed(2),'');pbar('conf-b',this.value/0.95*100);pushSettings()">
+        <div class="mtr mt2"><div class="mf fb" id="conf-b" style="width:30%"></div></div>
       </div>
       <div class="param">
         <div class="ph"><div class="pn">NMS IOU Overlap</div><div class="pv" id="iou-v">0.45<span class="pu"></span></div></div>

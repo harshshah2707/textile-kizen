@@ -72,8 +72,8 @@ clients_lock = threading.Lock()
 broadcasted_ids = {}
 
 # Global settings updated by WebSocket from UI
-# Increased from 0.20 to 0.45 to eliminate low-confidence texture and shadow false positives
-conf_threshold = 0.45
+# Calibrated at 0.28 for optimal balance of sensitivity and noise rejection
+conf_threshold = 0.28
 
 # Performance configuration from LIVE_CONFIG
 _MJPEG_QUALITY     = LIVE_CONFIG.get('mjpeg_quality', 88)
@@ -609,19 +609,17 @@ def _camera_stream_worker(camera_id):
                                 bh = b[3] - b[1]
 
                                 # Reject unrealistic full-screen detections or tiny speckles
-                                if bw > width * 0.60 or bh > roi_h * 0.60:
+                                if bw > width * 0.92 and bh > roi_h * 0.92:
                                     continue
-                                if (bw * bh) > (width * roi_h) * 0.25:
-                                    continue
-                                if bw < 12 or bh < 12:
+                                if bw < 8 or bh < 8:
                                     continue
                                 # Reject boxes that clip directly onto HUD banners
-                                if b[1] < hud_top + 4 or b[3] > height - hud_bottom - 4:
+                                if b[1] < hud_top + 2 or b[3] > height - hud_bottom - 2:
                                     continue
 
                                 # For 'Vertical' or 'lines' classes on line-scan, apply extra confidence guard
                                 dname = class_names_map.get(cls, "")
-                                if dname in ('Vertical', 'lines') and conf < 0.50:
+                                if dname in ('Vertical', 'lines') and conf < 0.35:
                                     continue
 
                                 if cam_mode == 'dual_linescan':
@@ -635,91 +633,90 @@ def _camera_stream_worker(camera_id):
                                 clss.append(cls)
 
                         tracker.update(rects, confs, clss)
-                        active_defects_list = tracker.get_active_defects(min_hits=2)
+                        active_defects_list = tracker.get_active_defects(min_hits=1)
                     else:
                         tracker.clear()
                         active_defects_list = []
                 except Exception:
                     active_defects_list = []
 
-                    for def_item in active_defects_list:
-                        def_id = f"{camera_id}-{def_item['id']}"
-                        dtype = class_names_map.get(def_item['class'], "defect")
-                        color = color_map.get(dtype, (0, 0, 255))
+                # Draw defect bounding boxes and sleek industrial tags
+                for def_item in active_defects_list:
+                    def_id = f"{camera_id}-{def_item['id']}"
+                    dtype = class_names_map.get(def_item['class'], "defect")
+                    color = color_map.get(dtype, (0, 0, 255))
 
-                        x1, y1, x2, y2 = def_item['bbox']
-                        w_box = x2 - x1
-                        h_box = y2 - y1
-                        size_mm = round(w_box * 0.15, 1)
+                    x1, y1, x2, y2 = def_item['bbox']
+                    w_box = x2 - x1
+                    h_box = y2 - y1
+                    size_mm = round(w_box * 0.15, 1)
 
-                        # Draw defect bounding boxes and sleek industrial tags
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-                        lbl = f"{dtype.upper()} {int(def_item['conf']*100)}% ({size_mm}mm)"
-                        (lw, lh), _ = cv2.getTextSize(lbl, cv2.FONT_HERSHEY_SIMPLEX, 0.40, 1)
-                        tag_y = max(42, y1 - 6)
-                        cv2.rectangle(frame, (x1, tag_y - lh - 4), (x1 + lw + 6, tag_y + 2), (15, 23, 42), -1)
-                        cv2.rectangle(frame, (x1, tag_y - lh - 4), (x1 + lw + 6, tag_y + 2), color, 1)
-                        cv2.putText(frame, lbl, (x1 + 3, tag_y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (255, 255, 255), 1, cv2.LINE_AA)
+                    # Draw defect bounding boxes and sleek industrial tags
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                    lbl = f"{dtype.upper()} {int(def_item['conf']*100)}% ({size_mm}mm)"
+                    (lw, lh), _ = cv2.getTextSize(lbl, cv2.FONT_HERSHEY_SIMPLEX, 0.40, 1)
+                    tag_y = max(42, y1 - 6)
+                    cv2.rectangle(frame, (x1, tag_y - lh - 4), (x1 + lw + 6, tag_y + 2), (15, 23, 42), -1)
+                    cv2.rectangle(frame, (x1, tag_y - lh - 4), (x1 + lw + 6, tag_y + 2), color, 1)
+                    cv2.putText(frame, lbl, (x1 + 3, tag_y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (255, 255, 255), 1, cv2.LINE_AA)
 
-                        # Broadcast & database logging with smart deduplication
-                        last_alert_time = broadcasted_ids.get(def_id, 0.0) if isinstance(broadcasted_ids, dict) else (0.0 if def_id not in broadcasted_ids else time.time())
-                        if now - last_alert_time >= 2.0:
-                            if isinstance(broadcasted_ids, dict):
-                                broadcasted_ids[def_id] = now
-                            else:
-                                broadcasted_ids.add(def_id)
+                    # Broadcast & database logging with smart deduplication
+                    last_alert_time = broadcasted_ids.get(def_id, 0.0) if isinstance(broadcasted_ids, dict) else (0.0 if def_id not in broadcasted_ids else time.time())
+                    if now - last_alert_time >= 2.0:
+                        if isinstance(broadcasted_ids, dict):
+                            broadcasted_ids[def_id] = now
+                        else:
+                            broadcasted_ids.add(def_id)
 
-                            distance_meters = 0.0
-                            if current_roll_id is not None:
-                                elapsed = time.time() - roll_start_time
-                                distance_meters = round((fabric_speed_m_per_min / 60) * elapsed, 2)
+                        distance_meters = 0.0
+                        if current_roll_id is not None:
+                            elapsed = time.time() - roll_start_time
+                            distance_meters = round((fabric_speed_m_per_min / 60) * elapsed, 2)
 
-                            crop_url = ""
-                            if frame is not None:
-                                try:
-                                    roll_folder = f"roll_{current_roll_id}" if current_roll_id is not None else "live_monitoring"
-                                    crop_dir = os.path.join("saved_frames", "crops", roll_folder)
-                                    os.makedirs(crop_dir, exist_ok=True)
-                                    crop_filename = f"defect_{def_item['id']}_{int(time.time()*1000)}.jpg"
-                                    crop_path = os.path.join(crop_dir, crop_filename)
-                                    fy, fx = frame.shape[:2]
-                                    cy1, cy2 = max(0, y1), min(fy, y2)
-                                    cx1, cx2 = max(0, x1), min(fx, x2)
-                                    if cy2 > cy1 and cx2 > cx1:
-                                        cv2.imwrite(crop_path, frame[cy1:cy2, cx1:cx2])
-                                        crop_url = f"/crops/{roll_folder}/{crop_filename}"
-                                except Exception:
-                                    pass
+                        crop_url = ""
+                        if frame is not None:
+                            try:
+                                roll_folder = f"roll_{current_roll_id}" if current_roll_id is not None else "live_monitoring"
+                                crop_dir = os.path.join("saved_frames", "crops", roll_folder)
+                                os.makedirs(crop_dir, exist_ok=True)
+                                crop_filename = f"defect_{def_item['id']}_{int(time.time()*1000)}.jpg"
+                                crop_path = os.path.join(crop_dir, crop_filename)
+                                fy, fx = frame.shape[:2]
+                                cy1, cy2 = max(0, y1), min(fy, y2)
+                                cx1, cx2 = max(0, x1), min(fx, x2)
+                                if cy2 > cy1 and cx2 > cx1:
+                                    cv2.imwrite(crop_path, frame[cy1:cy2, cx1:cx2])
+                                    crop_url = f"/crops/{roll_folder}/{crop_filename}"
+                            except Exception:
+                                pass
 
-                            if current_roll_id is not None:
-                                try:
-                                    db_manager.add_defect(current_roll_id, {
-                                        "timestamp": time.time(),
-                                        "defect_type": dtype,
-                                        "confidence": round(def_item['conf'], 2),
-                                        "size_mm": size_mm,
-                                        "bbox": {"x": x1, "y": y1, "width": w_box, "height": h_box},
-                                        "distance_meters": distance_meters,
-                                        "crop_path": crop_url
-                                    })
-                                except Exception:
-                                    pass
+                        if current_roll_id is not None:
+                            try:
+                                db_manager.add_defect(current_roll_id, {
+                                    "timestamp": time.time(),
+                                    "defect_type": dtype,
+                                    "confidence": round(def_item['conf'], 2),
+                                    "size_mm": size_mm,
+                                    "bbox": {"x": x1, "y": y1, "width": w_box, "height": h_box},
+                                    "distance_meters": distance_meters,
+                                    "crop_path": crop_url
+                                })
+                            except Exception:
+                                pass
 
-                            ws_broadcast({
-                                "type": "defect",
-                                "id": f"D-{def_id}",
-                                "defect_type": dtype,
-                                "confidence": round(def_item['conf'], 2),
-                                "camera": camera_id,
-                                "size_mm": size_mm,
-                                "location": f"X:{x1} Y:{y1}",
-                                "bbox": {"x": x1, "y": y1, "width": w_box, "height": h_box},
-                                "timestamp": int(time.time() * 1000),
-                                "distance_meters": distance_meters,
-                                "crop_path": crop_url
-                            })
-                except Exception:
-                    pass
+                        ws_broadcast({
+                            "type": "defect",
+                            "id": f"D-{def_id}",
+                            "defect_type": dtype,
+                            "confidence": round(def_item['conf'], 2),
+                            "camera": camera_id,
+                            "size_mm": size_mm,
+                            "location": f"X:{x1} Y:{y1}",
+                            "bbox": {"x": x1, "y": y1, "width": w_box, "height": h_box},
+                            "timestamp": int(time.time() * 1000),
+                            "distance_meters": distance_meters,
+                            "crop_path": crop_url
+                        })
 
             # Watermark and inspection status indicator
             if is_online:
