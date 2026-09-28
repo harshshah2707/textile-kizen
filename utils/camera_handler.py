@@ -918,13 +918,16 @@ class GigEVisionLineScanHandler:
             self.receiver.start()
             self.client.write_reg(0x10000014, 1)
 
-            # Build display canvas (e.g. 640 x 480 px) and raw rolling buffer
-            target_canvas_h = 3072
-            self.canvas_multiplier = max(8, target_canvas_h // self.height)
+            # Build display canvas with correct aspect ratio (no vertical compression)
+            # The horizontal scale factor (sensor width → display width) must equal the vertical scale factor.
+            tw, th = self.target_res
+            h_scale = tw / self.width                                   # e.g. 1280/4096 = 0.3125
+            self._scaled_slice_h = max(2, int(round(self.height * h_scale)))  # 128 * 0.3125 = 40px
+            self.canvas_multiplier = max(4, th // self._scaled_slice_h)       # 720/40 = 18 slices
             self.max_slices = self.canvas_multiplier
             total_h = self.height * self.max_slices
             self.canvas_rolling = np.zeros((total_h, self.width), dtype=np.uint8)
-            self.display_canvas = np.zeros((self.target_res[1], self.target_res[0]), dtype=np.uint8)
+            self.display_canvas = np.zeros((th, tw), dtype=np.uint8)
             self._blank_canvas = True
             self._raw_write_idx = 0
             self._last_slice_sub = None
@@ -951,7 +954,7 @@ class GigEVisionLineScanHandler:
                         slice_data = cv2.resize(slice_data, (self.width, self.height))
 
                     tw, th = self.target_res
-                    scaled_slice_h = max(2, int(round(th / self.canvas_multiplier)))
+                    scaled_slice_h = self._scaled_slice_h  # Aspect-ratio-preserving height (no vertical compression)
                     scaled_slice = cv2.resize(slice_data, (tw, scaled_slice_h), interpolation=cv2.INTER_LINEAR)
 
                     with self.lock:
@@ -1156,13 +1159,15 @@ class GigEVisionLineScanHandler:
                     self.client.write_reg(0x10000014, 0)
                     self.client.write_reg(0x10000004, val)
                     self.height = val
-                    target_canvas_h = 3072
-                    self.canvas_multiplier = max(8, target_canvas_h // self.height)
+                    tw, th = self.target_res
+                    h_scale = tw / self.width
+                    self._scaled_slice_h = max(2, int(round(self.height * h_scale)))
+                    self.canvas_multiplier = max(4, th // self._scaled_slice_h)
                     self.max_slices = self.canvas_multiplier
                     total_h = self.height * self.max_slices
                     with self.lock:
                         self.canvas_rolling = np.zeros((total_h, self.width), dtype=np.uint8)
-                        self.display_canvas = np.zeros((self.target_res[1], self.target_res[0]), dtype=np.uint8)
+                        self.display_canvas = np.zeros((th, tw), dtype=np.uint8)
                         self._raw_write_idx = 0
                         self._blank_canvas = True
                     self.client.write_reg(0x10000014, 1)
