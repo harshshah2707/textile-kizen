@@ -342,6 +342,9 @@ def handle_ws_client(client_socket, client_address):
                                 cam1.set_enhance(enh)
                             if mg is not None:
                                 cam1.set_motion_gated(mg)
+                            v_scale = cam_settings.get("v_scale") or cam_settings.get("vertical_scale")
+                            if v_scale is not None:
+                                cam1.set_v_scale(v_scale)
                     elif msg.get("type") == "set_camera_mode":
                         req_mode = msg.get("mode")
                         if req_mode:
@@ -869,6 +872,10 @@ def api_set_camera_settings():
             cam1.set_enhance(data["enhance"])
         if "motion_gated" in data:
             cam1.set_motion_gated(data["motion_gated"])
+        if "v_scale" in data:
+            cam1.set_v_scale(data["v_scale"])
+        elif "vertical_scale" in data:
+            cam1.set_v_scale(data["vertical_scale"])
     return jsonify({"status": "success", "telemetry": get_camera_telemetry()})
 
 # Camera telemetry query

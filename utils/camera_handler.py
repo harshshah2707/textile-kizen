@@ -918,12 +918,13 @@ class GigEVisionLineScanHandler:
             self.receiver.start()
             self.client.write_reg(0x10000014, 1)
 
-            # Build display canvas with correct aspect ratio (no vertical compression)
-            # The horizontal scale factor (sensor width → display width) must equal the vertical scale factor.
+            # Build display canvas — magnified 5.0x vertically so fabric details are large and uncompressed
+            # Eliminates line-scan vertical squishing: 100mm real-world fabric object appears at true large scale
             tw, th = self.target_res
-            h_scale = tw / self.width                                   # e.g. 1280/4096 = 0.3125
-            self._scaled_slice_h = max(2, int(round(self.height * h_scale)))  # 128 * 0.3125 = 40px
-            self.canvas_multiplier = max(4, th // self._scaled_slice_h)       # 720/40 = 18 slices
+            h_scale = tw / self.width                                        # 1280/4096 = 0.3125
+            self._v_mag = 5.0                                                # 5.0x Vertical magnification factor
+            self._scaled_slice_h = max(4, int(round(self.height * h_scale * self._v_mag)))  # 128*0.3125*5.0 = 200px
+            self.canvas_multiplier = max(2, th // self._scaled_slice_h)      # 720/200 = 3 slices
             self.max_slices = self.canvas_multiplier
             total_h = self.height * self.max_slices
             self.canvas_rolling = np.zeros((total_h, self.width), dtype=np.uint8)
@@ -1161,8 +1162,8 @@ class GigEVisionLineScanHandler:
                     self.height = val
                     tw, th = self.target_res
                     h_scale = tw / self.width
-                    self._scaled_slice_h = max(2, int(round(self.height * h_scale)))
-                    self.canvas_multiplier = max(4, th // self._scaled_slice_h)
+                    self._scaled_slice_h = max(4, int(round(self.height * h_scale * self._v_mag)))
+                    self.canvas_multiplier = max(3, th // self._scaled_slice_h)
                     self.max_slices = self.canvas_multiplier
                     total_h = self.height * self.max_slices
                     with self.lock:
@@ -1179,6 +1180,26 @@ class GigEVisionLineScanHandler:
 
     def set_motion_gated(self, val):
         self.motion_gated = bool(val)
+
+    def set_v_scale(self, val):
+        try:
+            val = float(val)
+            if 0.5 <= val <= 15.0:
+                self._v_mag = val
+                tw, th = self.target_res
+                h_scale = tw / self.width
+                self._scaled_slice_h = max(4, int(round(self.height * h_scale * self._v_mag)))
+                self.canvas_multiplier = max(2, th // self._scaled_slice_h)
+                self.max_slices = self.canvas_multiplier
+                total_h = self.height * self.max_slices
+                with self.lock:
+                    self.canvas_rolling = np.zeros((total_h, self.width), dtype=np.uint8)
+                    self.display_canvas = np.zeros((th, tw), dtype=np.uint8)
+                    self._raw_write_idx = 0
+                    self._blank_canvas = True
+                print(f"[GigEVision] Vertical magnification updated to {self._v_mag:.1f}x (slice={self._scaled_slice_h}px, buffer={self.max_slices} slices)")
+        except Exception as e:
+            print(f"[GigEVision] set_v_scale error: {e}")
 
     def stop(self):
         self.running = False
@@ -1395,6 +1416,10 @@ class CameraHandler:
     def set_motion_gated(self, val):
         if hasattr(self.handler, 'set_motion_gated'):
             self.handler.set_motion_gated(val)
+
+    def set_v_scale(self, val):
+        if hasattr(self.handler, 'set_v_scale'):
+            self.handler.set_v_scale(val)
 
     def get_status(self) -> Dict[str, Any]:
         if hasattr(self.handler, 'get_status'):
